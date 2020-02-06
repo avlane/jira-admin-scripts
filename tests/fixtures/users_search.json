@@ -1,0 +1,91 @@
+[
+  {
+    "self": "https://example.atlassian.net/rest/api/3/user?accountId=5b10ac8d82e05b22cc7d4ef5",
+    "accountId": "5b10ac8d82e05b22cc7d4ef5",
+    "accountType": "atlassian",
+    "emailAddress": "alice.moreau@example.com",
+    "avatarUrls": {
+      "48x48": "https://secure.gravatar.com/avatar/0.png"
+    },
+    "displayName": "Alice Moreau",
+    "active": true,
+    "timeZone": "Europe/Dublin",
+    "locale": "en_GB"
+  },
+  {
+    "self": "https://example.atlassian.net/rest/api/3/user?accountId=5b6a3c1f2d8e4a0b9c7f1e22",
+    "accountId": "5b6a3c1f2d8e4a0b9c7f1e22",
+    "accountType": "atlassian",
+    "emailAddress": "bob.okafor@example.com",
+    "avatarUrls": {
+      "48x48": "https://secure.gravatar.com/avatar/0.png"
+    },
+    "displayName": "Bob Okafor",
+    "active": true,
+    "timeZone": "Europe/Dublin",
+    "locale": "en_GB"
+  },
+  {
+    "self": "https://example.atlassian.net/rest/api/3/user?accountId=712020:6f1d2a3b-4c5d-4e6f-8a9b-0c1d2e3f4a5b",
+    "accountId": "712020:6f1d2a3b-4c5d-4e6f-8a9b-0c1d2e3f4a5b",
+    "accountType": "atlassian",
+    "emailAddress": "carol.nguyen@example.com",
+    "avatarUrls": {
+      "48x48": "https://secure.gravatar.com/avatar/0.png"
+    },
+    "displayName": "Carol Nguyen",
+    "active": true,
+    "timeZone": "Europe/Dublin",
+    "locale": "en_GB"
+  },
+  {
+    "self": "https://example.atlassian.net/rest/api/3/user?accountId=557058:aa11bb22-cc33-44dd-ee55-ff6677889900",
+    "accountId": "557058:aa11bb22-cc33-44dd-ee55-ff6677889900",
+    "accountType": "atlassian",
+    "emailAddress": "dan.whitfield@example.com",
+    "avatarUrls": {
+      "48x48": "https://secure.gravatar.com/avatar/0.png"
+    },
+    "displayName": "Dan Whitfield",
+    "active": false,
+    "timeZone": "Europe/Dublin",
+    "locale": "en_GB"
+  },
+  {
+    "self": "https://example.atlassian.net/rest/api/3/user?accountId=5d53f3cbc6b9320d9ea5bdc2",
+    "accountId": "5d53f3cbc6b9320d9ea5bdc2",
+    "accountType": "atlassian",
+    "avatarUrls": {
+      "48x48": "https://secure.gravatar.com/avatar/0.png"
+    },
+    "displayName": "Erin Castellano",
+    "active": true,
+    "timeZone": "Europe/Dublin",
+    "locale": "en_GB"
+  },
+  {
+    "self": "https://example.atlassian.net/rest/api/3/user?accountId=5e1c9d0b7a2f4c0c8b6d3a11",
+    "accountId": "5e1c9d0b7a2f4c0c8b6d3a11",
+    "accountType": "app",
+    "avatarUrls": {
+      "48x48": "https://secure.gravatar.com/avatar/0.png"
+    },
+    "displayName": "Example Deploy Bot",
+    "active": true,
+    "timeZone": "Europe/Dublin",
+    "locale": "en_GB"
+  },
+  {
+    "self": "https://example.atlassian.net/rest/api/3/user?accountId=6021f5a1d0c4a8006e9b3c77",
+    "accountId": "6021f5a1d0c4a8006e9b3c77",
+    "accountType": "customer",
+    "emailAddress": "fran@customer.example.org",
+    "avatarUrls": {
+      "48x48": "https://secure.gravatar.com/avatar/0.png"
+    },
+    "displayName": "Fran Customer",
+    "active": true,
+    "timeZone": "Europe/Dublin",
+    "locale": "en_GB"
+  }
+]

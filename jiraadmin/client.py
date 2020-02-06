@@ -42,3 +42,29 @@ class JiraClient:
 
     def get(self, path, params=None):
         return self.request("GET", path, params=params)
+
+    def paginate(self, path, params=None, key="values", page_size=50):
+        """Yield every item from a startAt/maxResults endpoint.
+
+        Handles both the paged shape ({"values": [...], "isLast": ...}) and
+        endpoints that return a bare JSON array.
+        """
+        start = 0
+        while True:
+            query = dict(params or {})
+            query.update({"startAt": start, "maxResults": page_size})
+            data = self.get(path, query)
+            items = data if isinstance(data, list) else data.get(key, [])
+            for item in items:
+                yield item
+            if not items:
+                return
+            if isinstance(data, dict):
+                if data.get("isLast") is True:
+                    return
+                total = data.get("total")
+                if total is not None and start + len(items) >= total:
+                    return
+            elif len(items) < page_size:
+                return
+            start += len(items)
