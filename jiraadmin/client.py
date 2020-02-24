@@ -1,4 +1,5 @@
 """Minimal Jira Cloud REST client (basic auth with an API token)."""
+import time
 
 
 class JiraError(Exception):
@@ -17,13 +18,25 @@ def default_session(email, token):
     return session
 
 
+def retry_after(resp, default=5):
+    """Seconds to wait before retrying a 429, from the Retry-After header."""
+    value = resp.headers.get("Retry-After")
+    try:
+        return max(0, int(value))
+    except (TypeError, ValueError):
+        return default
+
+
 class JiraClient:
     API = "/rest/api/3/"
 
-    def __init__(self, base_url, email=None, token=None, session=None, timeout=30):
+    def __init__(self, base_url, email=None, token=None, session=None, timeout=30,
+                 max_retries=5, sleep=time.sleep):
         self.base_url = base_url.rstrip("/")
         self.session = session if session is not None else default_session(email, token)
         self.timeout = timeout
+        self.max_retries = max_retries
+        self.sleep = sleep
 
     def url(self, path):
         if path.startswith("/rest/"):
@@ -32,7 +45,14 @@ class JiraClient:
 
     def request(self, method, path, params=None, body=None, expected=(200,)):
         url = self.url(path)
-        resp = self.session.request(method, url, params=params, json=body, timeout=self.timeout)
+        attempt = 0
+        while True:
+            resp = self.session.request(method, url, params=params, json=body, timeout=self.timeout)
+            if resp.status_code == 429 and attempt < self.max_retries:
+                attempt += 1
+                self.sleep(retry_after(resp))
+                continue
+            break
         if resp.status_code not in expected:
             raise JiraError("{} {} failed with HTTP {}: {}".format(method, url, resp.status_code, resp.text[:200]),
                             resp.status_code, url)
