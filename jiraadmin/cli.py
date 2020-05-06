@@ -2,7 +2,7 @@
 import argparse
 import sys
 
-from . import config, users
+from . import config, licenses, users
 from .client import JiraClient, JiraError
 
 
@@ -16,6 +16,8 @@ def build_parser():
     p_inactive = sub.add_parser("inactive", help="active accounts with no recent issue activity")
     p_inactive.add_argument("--days", type=int, default=90, help="look-back window (default 90)")
     p_inactive.add_argument("--limit", type=int, help="stop after this many candidates")
+    p_lic = sub.add_parser("licenses", help="licence seat usage per application")
+    p_lic.add_argument("--warn-at", type=int, default=90, help="flag applications at or above this percent")
     return parser
 
 
@@ -40,6 +42,13 @@ def cmd_inactive(client, args, out):
     return 0
 
 
+def cmd_licenses(client, args, out):
+    for row in licenses.summarize(licenses.application_roles(client), args.warn_at):
+        out.write("{key}\t{used}/{seats}\t{percent}%\t{flag}\n".format(
+            flag="WARN" if row["warning"] else "ok", **row))
+    return 0
+
+
 def main(argv=None, client=None, out=None):
     out = out if out is not None else sys.stdout
     args = build_parser().parse_args(argv)
@@ -49,6 +58,8 @@ def main(argv=None, client=None, out=None):
             return cmd_users(client, args, out)
         if args.command == "inactive":
             return cmd_inactive(client, args, out)
+        if args.command == "licenses":
+            return cmd_licenses(client, args, out)
     except (config.ConfigError, JiraError) as exc:
         print("error: {}".format(exc), file=sys.stderr)
         return 2

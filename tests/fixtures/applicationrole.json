@@ -1,0 +1,54 @@
+[
+  {
+    "key": "jira-software",
+    "groups": [
+      "jira-software-users"
+    ],
+    "name": "Jira Software",
+    "defaultGroups": [
+      "jira-software-users"
+    ],
+    "selectedByDefault": false,
+    "defined": true,
+    "numberOfSeats": 100,
+    "remainingSeats": 13,
+    "userCount": 87,
+    "userCountDescription": "developers",
+    "hasUnlimitedSeats": false,
+    "platform": false
+  },
+  {
+    "key": "jira-servicedesk",
+    "groups": [
+      "jira-servicedesk-users"
+    ],
+    "name": "Jira Service Desk",
+    "defaultGroups": [],
+    "selectedByDefault": false,
+    "defined": true,
+    "numberOfSeats": 10,
+    "remainingSeats": 0,
+    "userCount": 10,
+    "userCountDescription": "agents",
+    "hasUnlimitedSeats": false,
+    "platform": false
+  },
+  {
+    "key": "jira-core",
+    "groups": [
+      "jira-core-users"
+    ],
+    "name": "Jira Core",
+    "defaultGroups": [
+      "jira-core-users"
+    ],
+    "selectedByDefault": true,
+    "defined": true,
+    "numberOfSeats": 50,
+    "remainingSeats": 29,
+    "userCount": 21,
+    "userCountDescription": "users",
+    "hasUnlimitedSeats": false,
+    "platform": true
+  }
+]
