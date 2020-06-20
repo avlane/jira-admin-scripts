@@ -20,13 +20,24 @@ class CliTests(unittest.TestCase):
     def test_users_lists_humans(self):
         code, text = run(["users"], self.session)
         self.assertEqual(code, 0)
-        self.assertEqual(len(text.splitlines()), 5)
+        self.assertEqual(len(text.splitlines()), 7)
         self.assertIn("Alice Moreau", text)
+        self.assertNotIn("Deploy Bot", text)
 
     def test_users_inactive_only(self):
-        code, text = run(["users", "--inactive-only"], self.session)
+        code, text = run(["users", "--inactive-only", "--format", "csv"], self.session)
         self.assertEqual(text.splitlines(), [
-            "557058:aa11bb22-cc33-44dd-ee55-ff6677889900\tinactive\tDan Whitfield\tdan.whitfield@example.com"])
+            "accountId,status,displayName,emailAddress",
+            "557058:aa11bb22-cc33-44dd-ee55-ff6677889900,inactive,Dan Whitfield,dan.whitfield@example.com"])
+
+    def test_licenses_json(self):
+        import json
+        from tests.helpers import load
+        self.session.add("GET", r"/applicationrole$", load("applicationrole.json"))
+        code, text = run(["licenses", "--format", "json"], self.session)
+        rows = json.loads(text)
+        self.assertEqual([r["key"] for r in rows], ["jira-software", "jira-servicedesk", "jira-core"])
+        self.assertTrue(rows[1]["warning"])
 
 
 if __name__ == "__main__":
