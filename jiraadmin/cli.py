@@ -2,7 +2,7 @@
 import argparse
 import sys
 
-from . import config, licenses, report, users
+from . import config, groups, licenses, report, users
 from .client import JiraClient, JiraError
 
 FORMATS = ("table", "csv", "json")
@@ -22,6 +22,9 @@ def build_parser():
     p_inactive.add_argument("--limit", type=int, help="stop after this many candidates")
     p_lic = sub.add_parser("licenses", parents=[common], help="licence seat usage per application")
     p_lic.add_argument("--warn-at", type=int, default=90, help="flag applications at or above this percent")
+    p_members = sub.add_parser("group-members", parents=[common], help="list the members of a group")
+    p_members.add_argument("group", help="group name")
+    p_members.add_argument("--include-inactive", action="store_true")
     return parser
 
 
@@ -55,7 +58,14 @@ def cmd_licenses(client, args, out):
     return emit(rows, ("key", "name", "seats", "used", "remaining", "percent", "warning"), args, out)
 
 
-HANDLERS = {"users": cmd_users, "inactive": cmd_inactive, "licenses": cmd_licenses}
+def cmd_group_members(client, args, out):
+    rows = [{"accountId": u["accountId"], "displayName": u.get("displayName", ""), "active": u.get("active")}
+            for u in groups.members(client, args.group, args.include_inactive)]
+    return emit(rows, ("accountId", "displayName", "active"), args, out)
+
+
+HANDLERS = {"users": cmd_users, "inactive": cmd_inactive, "licenses": cmd_licenses,
+            "group-members": cmd_group_members}
 
 
 def main(argv=None, client=None, out=None):

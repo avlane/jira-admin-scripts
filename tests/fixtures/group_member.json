@@ -1,0 +1,48 @@
+{
+  "self": "https://example.atlassian.net/rest/api/3/group/member?groupname=jira-administrators",
+  "maxResults": 50,
+  "startAt": 0,
+  "total": 3,
+  "isLast": true,
+  "values": [
+    {
+      "self": "https://example.atlassian.net/rest/api/3/user?accountId=5b10ac8d82e05b22cc7d4ef5",
+      "accountId": "5b10ac8d82e05b22cc7d4ef5",
+      "accountType": "atlassian",
+      "emailAddress": "alice.moreau@example.com",
+      "avatarUrls": {
+        "48x48": "https://secure.gravatar.com/avatar/0.png"
+      },
+      "displayName": "Alice Moreau",
+      "active": true,
+      "timeZone": "Europe/Dublin",
+      "locale": "en_GB"
+    },
+    {
+      "self": "https://example.atlassian.net/rest/api/3/user?accountId=5b6a3c1f2d8e4a0b9c7f1e22",
+      "accountId": "5b6a3c1f2d8e4a0b9c7f1e22",
+      "accountType": "atlassian",
+      "emailAddress": "bob.okafor@example.com",
+      "avatarUrls": {
+        "48x48": "https://secure.gravatar.com/avatar/0.png"
+      },
+      "displayName": "Bob Okafor",
+      "active": true,
+      "timeZone": "Europe/Dublin",
+      "locale": "en_GB"
+    },
+    {
+      "self": "https://example.atlassian.net/rest/api/3/user?accountId=712020:6f1d2a3b-4c5d-4e6f-8a9b-0c1d2e3f4a5b",
+      "accountId": "712020:6f1d2a3b-4c5d-4e6f-8a9b-0c1d2e3f4a5b",
+      "accountType": "atlassian",
+      "emailAddress": "carol.nguyen@example.com",
+      "avatarUrls": {
+        "48x48": "https://secure.gravatar.com/avatar/0.png"
+      },
+      "displayName": "Carol Nguyen",
+      "active": true,
+      "timeZone": "Europe/Dublin",
+      "locale": "en_GB"
+    }
+  ]
+}
