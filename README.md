@@ -15,6 +15,16 @@ membership, project roles, permission schemes and custom fields.
 
 Every command takes `--format table|csv|json`.
 
+## Bulk group membership
+
+`bulk-groups` reads a CSV and adds the listed accounts to groups:
+
+    action,group,accountId
+    add,jira-software-users,5b10ac8d82e05b22cc7d4ef5
+
+It is a dry run unless `--apply` is passed. Accounts that are already in the
+group are skipped.
+
 ## Configuration
 
     export JIRA_URL=https://example.atlassian.net

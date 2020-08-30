@@ -1,8 +1,9 @@
+import io
 import unittest
 
 from jiraadmin import groups
 from jiraadmin.client import JiraClient
-from tests.helpers import FakeSession, load, paged
+from tests.helpers import FakeResponse, FakeSession, load, paged
 
 
 def make(session):
@@ -24,6 +25,48 @@ class MembersTests(unittest.TestCase):
         self.assertEqual(len(got), 3)
         self.assertEqual(len(session.calls), 2)
         self.assertEqual(session.calls[0]["params"]["includeInactiveUsers"], "true")
+
+
+CSV_OK = "action,group,accountId\nadd,jira-administrators,5b10ac8d82e05b22cc7d4ef5\nadd,jira-administrators,NEWUSER1\n"
+
+
+class PlanTests(unittest.TestCase):
+    def setUp(self):
+        self.session = FakeSession()
+        self.session.add("GET", r"/group/member$", load("group_member.json"))
+        self.session.add("POST", r"/group/user$", FakeResponse(201, {"name": "jira-administrators"}))
+
+    def test_read_plan(self):
+        steps = groups.read_plan(io.StringIO(CSV_OK))
+        self.assertEqual(len(steps), 2)
+        self.assertEqual(steps[1]["accountId"], "NEWUSER1")
+
+    def test_read_plan_rejects_bad_input(self):
+        with self.assertRaises(groups.PlanError):
+            groups.read_plan(io.StringIO("group,accountId\nx,y\n"))
+        with self.assertRaises(groups.PlanError):
+            groups.read_plan(io.StringIO("action,group,accountId\nfrob,x,y\n"))
+        with self.assertRaises(groups.PlanError):
+            groups.read_plan(io.StringIO("action,group,accountId\nadd,,y\n"))
+
+    def test_dry_run_changes_nothing(self):
+        results = groups.run_plan(make(self.session), groups.read_plan(io.StringIO(CSV_OK)))
+        self.assertEqual([r["status"] for r in results], ["skipped", "planned"])
+        self.assertEqual(self.session.calls_to("POST", "/group/user"), [])
+
+    def test_apply_adds_missing_members(self):
+        results = groups.run_plan(make(self.session), groups.read_plan(io.StringIO(CSV_OK)), apply=True)
+        self.assertEqual([r["status"] for r in results], ["skipped", "added"])
+        post = self.session.calls_to("POST", "/group/user")[0]
+        self.assertEqual(post["params"], {"groupname": "jira-administrators"})
+        self.assertEqual(post["json"], {"accountId": "NEWUSER1"})
+
+    def test_failure_is_reported_not_raised(self):
+        self.session.routes = [r for r in self.session.routes if r[0] != "POST"]
+        self.session.add("POST", r"/group/user$", FakeResponse(400, {"errorMessages": ["user does not exist"]}))
+        results = groups.run_plan(make(self.session), groups.read_plan(io.StringIO(CSV_OK)), apply=True)
+        self.assertEqual(results[1]["status"], "failed")
+        self.assertIn("400", results[1]["detail"])
 
 
 if __name__ == "__main__":

@@ -25,6 +25,9 @@ def build_parser():
     p_members = sub.add_parser("group-members", parents=[common], help="list the members of a group")
     p_members.add_argument("group", help="group name")
     p_members.add_argument("--include-inactive", action="store_true")
+    p_bulk = sub.add_parser("bulk-groups", parents=[common], help="add users to groups from a CSV file")
+    p_bulk.add_argument("csv_file", help="CSV with columns action, group, accountId")
+    p_bulk.add_argument("--apply", action="store_true", help="make the changes (default is a dry run)")
     return parser
 
 
@@ -64,8 +67,18 @@ def cmd_group_members(client, args, out):
     return emit(rows, ("accountId", "displayName", "active"), args, out)
 
 
+def cmd_bulk_groups(client, args, out):
+    with open(args.csv_file, newline="", encoding="utf-8") as handle:
+        steps = groups.read_plan(handle)
+    results = groups.run_plan(client, steps, apply=args.apply)
+    if not args.apply:
+        out.write("dry run: pass --apply to make these changes\n")
+    emit(results, ("action", "group", "accountId", "status", "detail"), args, out)
+    return 1 if any(r["status"] == "failed" for r in results) else 0
+
+
 HANDLERS = {"users": cmd_users, "inactive": cmd_inactive, "licenses": cmd_licenses,
-            "group-members": cmd_group_members}
+            "group-members": cmd_group_members, "bulk-groups": cmd_bulk_groups}
 
 
 def main(argv=None, client=None, out=None):
@@ -74,6 +87,6 @@ def main(argv=None, client=None, out=None):
     try:
         client = client or make_client()
         return HANDLERS[args.command](client, args, out)
-    except (config.ConfigError, JiraError) as exc:
+    except (config.ConfigError, groups.PlanError, JiraError) as exc:
         print("error: {}".format(exc), file=sys.stderr)
         return 2
