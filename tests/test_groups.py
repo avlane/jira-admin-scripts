@@ -46,6 +46,7 @@ class PlanTests(unittest.TestCase):
             groups.read_plan(io.StringIO("group,accountId\nx,y\n"))
         with self.assertRaises(groups.PlanError):
             groups.read_plan(io.StringIO("action,group,accountId\nfrob,x,y\n"))
+        self.assertEqual(groups.read_plan(io.StringIO("action,group,accountId\nRemove,x,y\n"))[0]["action"], "remove")
         with self.assertRaises(groups.PlanError):
             groups.read_plan(io.StringIO("action,group,accountId\nadd,,y\n"))
 
@@ -60,6 +61,18 @@ class PlanTests(unittest.TestCase):
         post = self.session.calls_to("POST", "/group/user")[0]
         self.assertEqual(post["params"], {"groupname": "jira-administrators"})
         self.assertEqual(post["json"], {"accountId": "NEWUSER1"})
+
+    def test_remove_only_touches_current_members(self):
+        self.session.add("DELETE", r"/group/user$", FakeResponse(200))
+        csv_text = ("action,group,accountId\nremove,jira-administrators,5b6a3c1f2d8e4a0b9c7f1e22\n"
+                    "remove,jira-administrators,NOTAMEMBER\n")
+        steps = groups.read_plan(io.StringIO(csv_text))
+        planned = groups.run_plan(make(self.session), steps)
+        self.assertEqual([r["status"] for r in planned], ["planned", "skipped"])
+        done = groups.run_plan(make(self.session), steps, apply=True)
+        self.assertEqual([r["status"] for r in done], ["removed", "skipped"])
+        delete = self.session.calls_to("DELETE", "/group/user")[0]
+        self.assertEqual(delete["params"], {"groupname": "jira-administrators", "accountId": "5b6a3c1f2d8e4a0b9c7f1e22"})
 
     def test_failure_is_reported_not_raised(self):
         self.session.routes = [r for r in self.session.routes if r[0] != "POST"]

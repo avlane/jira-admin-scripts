@@ -22,8 +22,8 @@ Every command takes `--format table|csv|json`.
     action,group,accountId
     add,jira-software-users,5b10ac8d82e05b22cc7d4ef5
 
-It is a dry run unless `--apply` is passed. Accounts that are already in the
-group are skipped.
+`action` is `add` or `remove`. It is a dry run unless `--apply` is passed.
+Accounts that are already in (or already out of) the group are skipped.
 
 ## Configuration
 
