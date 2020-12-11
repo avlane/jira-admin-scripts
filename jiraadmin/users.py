@@ -36,5 +36,5 @@ def inactive_users(client, days=90, limit=None, count=count_issues):
             break
         if count(client, activity_jql(user["accountId"], days)) == 0:
             rows.append({"accountId": user["accountId"], "displayName": user["displayName"],
-                         "emailAddress": user["emailAddress"], "recentIssues": 0})
+                         "emailAddress": user.get("emailAddress", ""), "recentIssues": 0})
     return rows

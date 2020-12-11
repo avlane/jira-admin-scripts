@@ -32,11 +32,12 @@ def search_route(totals):
 class InactiveTests(unittest.TestCase):
     def test_only_accounts_without_recent_issues_are_reported(self):
         session = FakeSession()
-        session.add("GET", r"/users/search$", paged([u for u in load("users_search.json") if u.get("emailAddress")]))
+        session.add("GET", r"/users/search$", paged(load("users_search.json")))
         session.add("GET", r"/rest/api/3/search$", search_route({"5b10ac8d82e05b22cc7d4ef5": 12, "5b6a3c1f2d8e4a0b9c7f1e22": 1}))
         client = JiraClient("https://example.atlassian.net", session=session)
         rows = users.inactive_users(client, days=60)
-        self.assertEqual([r["displayName"] for r in rows], ["Carol Nguyen"])
+        self.assertEqual([r["displayName"] for r in rows], ["Carol Nguyen", "Erin Castellano"])
+        self.assertEqual(rows[1]["emailAddress"], "")
         jql = session.calls_to("GET", "/rest/api/3/search$")[0]["params"]["jql"]
         self.assertIn("updated >= -60d", jql)
 
