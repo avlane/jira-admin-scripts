@@ -1,0 +1,22 @@
+{
+  "self": "https://example.atlassian.net/rest/api/3/project/10001/role/10002",
+  "name": "Administrators",
+  "id": 10002,
+  "description": "A project role that administrators",
+  "actors": [
+    {
+      "id": 10250,
+      "displayName": "Bob Okafor",
+      "type": "atlassian-user-role-actor",
+      "actorUser": {
+        "accountId": "5b6a3c1f2d8e4a0b9c7f1e22"
+      }
+    }
+  ],
+  "scope": {
+    "type": "PROJECT",
+    "project": {
+      "id": "10001"
+    }
+  }
+}

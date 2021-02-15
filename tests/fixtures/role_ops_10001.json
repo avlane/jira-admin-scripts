@@ -1,0 +1,25 @@
+{
+  "self": "https://example.atlassian.net/rest/api/3/project/10001/role/10001",
+  "name": "Developers",
+  "id": 10001,
+  "description": "A project role that developers",
+  "actors": [
+    {
+      "id": 10251,
+      "displayName": "ops-agents",
+      "type": "atlassian-group-role-actor",
+      "name": "ops-agents",
+      "actorGroup": {
+        "name": "ops-agents",
+        "displayName": "ops-agents",
+        "groupId": "a1b2c3d4-0000-4000-8000-000000000003"
+      }
+    }
+  ],
+  "scope": {
+    "type": "PROJECT",
+    "project": {
+      "id": "10001"
+    }
+  }
+}

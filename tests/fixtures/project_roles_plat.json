@@ -1,0 +1,6 @@
+{
+  "Administrators": "https://example.atlassian.net/rest/api/3/project/10000/role/10002",
+  "Developers": "https://example.atlassian.net/rest/api/3/project/10000/role/10001",
+  "Users": "https://example.atlassian.net/rest/api/3/project/10000/role/10000",
+  "atlassian-addons-project-access": "https://example.atlassian.net/rest/api/3/project/10000/role/10100"
+}

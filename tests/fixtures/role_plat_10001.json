@@ -1,0 +1,41 @@
+{
+  "self": "https://example.atlassian.net/rest/api/3/project/10000/role/10001",
+  "name": "Developers",
+  "id": 10001,
+  "description": "A project role that developers",
+  "actors": [
+    {
+      "id": 10241,
+      "displayName": "plat-developers",
+      "type": "atlassian-group-role-actor",
+      "name": "plat-developers",
+      "actorGroup": {
+        "name": "plat-developers",
+        "displayName": "plat-developers",
+        "groupId": "a1b2c3d4-0000-4000-8000-000000000002"
+      }
+    },
+    {
+      "id": 10242,
+      "displayName": "Alice Moreau",
+      "type": "atlassian-user-role-actor",
+      "actorUser": {
+        "accountId": "5b10ac8d82e05b22cc7d4ef5"
+      }
+    },
+    {
+      "id": 10243,
+      "displayName": "Dan Whitfield",
+      "type": "atlassian-user-role-actor",
+      "actorUser": {
+        "accountId": "557058:aa11bb22-cc33-44dd-ee55-ff6677889900"
+      }
+    }
+  ],
+  "scope": {
+    "type": "PROJECT",
+    "project": {
+      "id": "10000"
+    }
+  }
+}

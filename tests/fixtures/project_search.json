@@ -1,0 +1,54 @@
+{
+  "self": "https://example.atlassian.net/rest/api/3/project/search?maxResults=50&startAt=0",
+  "maxResults": 50,
+  "startAt": 0,
+  "total": 3,
+  "isLast": true,
+  "values": [
+    {
+      "expand": "description,lead,issueTypes,url,projectKeys,permissions,insight",
+      "self": "https://example.atlassian.net/rest/api/3/project/10000",
+      "id": "10000",
+      "key": "PLAT",
+      "name": "Platform",
+      "avatarUrls": {
+        "48x48": "https://example.atlassian.net/secure/projectavatar?pid=10000"
+      },
+      "projectTypeKey": "software",
+      "simplified": false,
+      "style": "classic",
+      "isPrivate": false,
+      "properties": {}
+    },
+    {
+      "expand": "description,lead,issueTypes,url,projectKeys,permissions,insight",
+      "self": "https://example.atlassian.net/rest/api/3/project/10001",
+      "id": "10001",
+      "key": "OPS",
+      "name": "Operations",
+      "avatarUrls": {
+        "48x48": "https://example.atlassian.net/secure/projectavatar?pid=10001"
+      },
+      "projectTypeKey": "service_desk",
+      "simplified": false,
+      "style": "classic",
+      "isPrivate": false,
+      "properties": {}
+    },
+    {
+      "expand": "description,lead,issueTypes,url,projectKeys,permissions,insight",
+      "self": "https://example.atlassian.net/rest/api/3/project/10002",
+      "id": "10002",
+      "key": "NEXT",
+      "name": "Roadmap Sandbox",
+      "avatarUrls": {
+        "48x48": "https://example.atlassian.net/secure/projectavatar?pid=10002"
+      },
+      "projectTypeKey": "software",
+      "simplified": true,
+      "style": "next-gen",
+      "isPrivate": false,
+      "properties": {}
+    }
+  ]
+}

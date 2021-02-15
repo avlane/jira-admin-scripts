@@ -1,0 +1,25 @@
+{
+  "self": "https://example.atlassian.net/rest/api/3/project/10000/role/10002",
+  "name": "Administrators",
+  "id": 10002,
+  "description": "A project role that administrators",
+  "actors": [
+    {
+      "id": 10240,
+      "displayName": "jira-administrators",
+      "type": "atlassian-group-role-actor",
+      "name": "jira-administrators",
+      "actorGroup": {
+        "name": "jira-administrators",
+        "displayName": "jira-administrators",
+        "groupId": "a1b2c3d4-0000-4000-8000-000000000001"
+      }
+    }
+  ],
+  "scope": {
+    "type": "PROJECT",
+    "project": {
+      "id": "10000"
+    }
+  }
+}

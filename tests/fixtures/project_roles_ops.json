@@ -1,0 +1,4 @@
+{
+  "Administrators": "https://example.atlassian.net/rest/api/3/project/10001/role/10002",
+  "Developers": "https://example.atlassian.net/rest/api/3/project/10001/role/10001"
+}

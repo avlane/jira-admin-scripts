@@ -1,0 +1,13 @@
+{
+  "self": "https://example.atlassian.net/rest/api/3/project/10000/role/10000",
+  "name": "Users",
+  "id": 10000,
+  "description": "A project role that users",
+  "actors": [],
+  "scope": {
+    "type": "PROJECT",
+    "project": {
+      "id": "10000"
+    }
+  }
+}

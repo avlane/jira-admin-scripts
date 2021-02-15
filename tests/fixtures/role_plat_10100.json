@@ -1,0 +1,13 @@
+{
+  "self": "https://example.atlassian.net/rest/api/3/project/10000/role/10100",
+  "name": "atlassian-addons-project-access",
+  "id": 10100,
+  "description": "A project role that atlassian-addons-project-access",
+  "actors": [],
+  "scope": {
+    "type": "PROJECT",
+    "project": {
+      "id": "10000"
+    }
+  }
+}
