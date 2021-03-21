@@ -7,6 +7,12 @@ explicitly ask it to.
 Status: just started. The plan is user and licence audits first, then group
 membership, project roles, permission schemes and custom fields.
 
+## Install
+
+    python -m pip install .
+
+This installs a `jiraadmin` command; `python -m jiraadmin` works from a checkout too.
+
 ## Usage
 
     python -m jiraadmin users --inactive-only
