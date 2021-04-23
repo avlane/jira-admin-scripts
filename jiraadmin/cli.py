@@ -2,7 +2,7 @@
 import argparse
 import sys
 
-from . import config, groups, licenses, report, users
+from . import config, groups, licenses, report, roles, users
 from .client import JiraClient, JiraError
 
 FORMATS = ("table", "csv", "json")
@@ -28,6 +28,9 @@ def build_parser():
     p_bulk = sub.add_parser("bulk-groups", parents=[common], help="add users to groups from a CSV file")
     p_bulk.add_argument("csv_file", help="CSV with columns action, group, accountId")
     p_bulk.add_argument("--apply", action="store_true", help="make the changes (default is a dry run)")
+    p_roles = sub.add_parser("roles", parents=[common], help="who holds each project role")
+    p_roles.add_argument("--project", action="append", help="project key (repeatable); default is all classic projects")
+    p_roles.add_argument("--findings-only", action="store_true", help="hide rows without a finding")
     return parser
 
 
@@ -77,8 +80,15 @@ def cmd_bulk_groups(client, args, out):
     return 1 if any(r["status"] == "failed" for r in results) else 0
 
 
+def cmd_roles(client, args, out):
+    rows = roles.audit(client, projects=args.project)
+    if args.findings_only:
+        rows = [r for r in rows if r["finding"]]
+    return emit(rows, ("project", "role", "actorType", "actor", "finding"), args, out)
+
+
 HANDLERS = {"users": cmd_users, "inactive": cmd_inactive, "licenses": cmd_licenses,
-            "group-members": cmd_group_members, "bulk-groups": cmd_bulk_groups}
+            "group-members": cmd_group_members, "bulk-groups": cmd_bulk_groups, "roles": cmd_roles}
 
 
 def main(argv=None, client=None, out=None):

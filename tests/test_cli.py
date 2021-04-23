@@ -30,6 +30,15 @@ class CliTests(unittest.TestCase):
             "accountId,status,displayName,emailAddress",
             "557058:aa11bb22-cc33-44dd-ee55-ff6677889900,inactive,Dan Whitfield,dan.whitfield@example.com"])
 
+    def test_roles_findings_only(self):
+        from tests.test_roles import make_session
+        session = make_session()
+        code, text = run(["roles", "--findings-only", "--format", "csv"], session)
+        self.assertEqual(code, 0)
+        lines = text.splitlines()
+        self.assertEqual(lines[0], "project,role,actorType,actor,finding")
+        self.assertEqual(len(lines), 5)
+
     def test_group_members(self):
         from tests.helpers import load
         self.session.add("GET", r"/group/member$", load("group_member.json"))
