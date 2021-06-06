@@ -45,6 +45,10 @@ class CliTests(unittest.TestCase):
         code, text = run(["group-members", "jira-administrators", "--format", "csv"], self.session)
         self.assertEqual(len(text.splitlines()), 4)
 
+    def test_group_members_needs_a_group(self):
+        code, _ = run(["group-members"], self.session)
+        self.assertEqual(code, 2)
+
     def test_licenses_json(self):
         import json
         from tests.helpers import load

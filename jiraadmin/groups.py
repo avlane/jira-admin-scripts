@@ -1,9 +1,16 @@
 """Group membership lookups."""
 
 
-def members(client, group, include_inactive=False):
-    """All members of a group, by name. Page size is capped at 50 by Jira."""
-    params = {"groupname": group, "includeInactiveUsers": "true" if include_inactive else "false"}
+def members(client, group=None, include_inactive=False, group_id=None):
+    """All members of a group, by name or by groupId. Page size is capped at 50 by Jira.
+
+    Group names can change and are no longer guaranteed unique, so groupId is
+    the stable way to refer to a group when you have it.
+    """
+    if bool(group) == bool(group_id):
+        raise ValueError("give exactly one of group or group_id")
+    params = {"includeInactiveUsers": "true" if include_inactive else "false"}
+    params["groupId" if group_id else "groupname"] = group_id or group
     return list(client.paginate("group/member", params=params, page_size=50))
 
 

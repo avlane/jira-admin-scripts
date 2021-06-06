@@ -23,7 +23,8 @@ def build_parser():
     p_lic = sub.add_parser("licenses", parents=[common], help="licence seat usage per application")
     p_lic.add_argument("--warn-at", type=int, default=90, help="flag applications at or above this percent")
     p_members = sub.add_parser("group-members", parents=[common], help="list the members of a group")
-    p_members.add_argument("group", help="group name")
+    p_members.add_argument("group", nargs="?", help="group name")
+    p_members.add_argument("--group-id", help="look the group up by groupId instead of name")
     p_members.add_argument("--include-inactive", action="store_true")
     p_bulk = sub.add_parser("bulk-groups", parents=[common], help="add users to groups from a CSV file")
     p_bulk.add_argument("csv_file", help="CSV with columns action, group, accountId")
@@ -65,8 +66,11 @@ def cmd_licenses(client, args, out):
 
 
 def cmd_group_members(client, args, out):
+    if bool(args.group) == bool(args.group_id):
+        print("error: give a group name or --group-id", file=sys.stderr)
+        return 2
     rows = [{"accountId": u["accountId"], "displayName": u.get("displayName", ""), "active": u.get("active")}
-            for u in groups.members(client, args.group, args.include_inactive)]
+            for u in groups.members(client, args.group, args.include_inactive, args.group_id)]
     return emit(rows, ("accountId", "displayName", "active"), args, out)
 
 

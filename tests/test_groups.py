@@ -18,6 +18,20 @@ class MembersTests(unittest.TestCase):
         self.assertEqual(session.calls[0]["params"]["groupname"], "jira-administrators")
         self.assertEqual(session.calls[0]["params"]["includeInactiveUsers"], "false")
 
+    def test_by_group_id(self):
+        session = FakeSession().add("GET", r"/group/member$", load("group_member.json"))
+        groups.members(make(session), group_id="a1b2c3d4-0000-4000-8000-000000000001")
+        params = session.calls[0]["params"]
+        self.assertEqual(params["groupId"], "a1b2c3d4-0000-4000-8000-000000000001")
+        self.assertNotIn("groupname", params)
+
+    def test_needs_exactly_one_identifier(self):
+        client = make(FakeSession())
+        with self.assertRaises(ValueError):
+            groups.members(client)
+        with self.assertRaises(ValueError):
+            groups.members(client, "g", group_id="x")
+
     def test_walks_pages(self):
         values = load("group_member.json")["values"]
         session = FakeSession().add("GET", r"/group/member$", paged(values, key="values", cap=2))
