@@ -1,0 +1,7 @@
+{
+  "expand": "permissions,user,group,projectRole,field,all",
+  "id": 10000,
+  "self": "https://example.atlassian.net/rest/api/3/permissionscheme/10000",
+  "name": "Default Permission Scheme",
+  "description": "Default"
+}

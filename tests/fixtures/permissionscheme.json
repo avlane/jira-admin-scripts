@@ -1,0 +1,116 @@
+{
+  "permissionSchemes": [
+    {
+      "self": "https://example.atlassian.net/rest/api/3/permissionscheme/10000",
+      "id": 10000,
+      "name": "Default Permission Scheme",
+      "description": "This is the default Permission Scheme. Any new projects that are created will be assigned this scheme.",
+      "permissions": [
+        {
+          "id": 10100,
+          "holder": {
+            "type": "projectRole",
+            "parameter": "10002",
+            "value": "10002"
+          },
+          "permission": "ADMINISTER_PROJECTS"
+        },
+        {
+          "id": 10101,
+          "holder": {
+            "type": "applicationRole"
+          },
+          "permission": "BROWSE_PROJECTS"
+        },
+        {
+          "id": 10102,
+          "holder": {
+            "type": "projectRole",
+            "parameter": "10001",
+            "value": "10001"
+          },
+          "permission": "CREATE_ISSUES"
+        },
+        {
+          "id": 10103,
+          "holder": {
+            "type": "group",
+            "parameter": "jira-administrators",
+            "value": "a1b2c3d4-0000-4000-8000-000000000001",
+            "expand": "group"
+          },
+          "permission": "DELETE_ISSUES"
+        },
+        {
+          "id": 10104,
+          "holder": {
+            "type": "projectRole",
+            "parameter": "10001",
+            "value": "10001"
+          },
+          "permission": "EDIT_ISSUES"
+        }
+      ]
+    },
+    {
+      "self": "https://example.atlassian.net/rest/api/3/permissionscheme/10001",
+      "id": 10001,
+      "name": "Open Intake",
+      "description": "Customers file requests without logging in.",
+      "permissions": [
+        {
+          "id": 10200,
+          "holder": {
+            "type": "anyone"
+          },
+          "permission": "BROWSE_PROJECTS"
+        },
+        {
+          "id": 10201,
+          "holder": {
+            "type": "anyone"
+          },
+          "permission": "CREATE_ISSUES"
+        },
+        {
+          "id": 10202,
+          "holder": {
+            "type": "user",
+            "parameter": "557058:aa11bb22-cc33-44dd-ee55-ff6677889900",
+            "value": "557058:aa11bb22-cc33-44dd-ee55-ff6677889900",
+            "expand": "user"
+          },
+          "permission": "DELETE_ISSUES"
+        },
+        {
+          "id": 10203,
+          "holder": {
+            "type": "group",
+            "parameter": "jira-administrators",
+            "value": "a1b2c3d4-0000-4000-8000-000000000001",
+            "expand": "group"
+          },
+          "permission": "ADMINISTER_PROJECTS"
+        }
+      ]
+    },
+    {
+      "self": "https://example.atlassian.net/rest/api/3/permissionscheme/10002",
+      "id": 10002,
+      "name": "Legacy Scheme",
+      "description": "Left over from the 2019 reorganisation.",
+      "permissions": [
+        {
+          "id": 10300,
+          "holder": {
+            "type": "group",
+            "parameter": "jira-users",
+            "value": "a1b2c3d4-0000-4000-8000-000000000009",
+            "expand": "group"
+          },
+          "permission": "BROWSE_PROJECTS"
+        }
+      ]
+    }
+  ]
+}

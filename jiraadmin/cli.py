@@ -2,7 +2,7 @@
 import argparse
 import sys
 
-from . import config, groups, licenses, report, roles, users
+from . import config, groups, licenses, permissions, report, roles, users
 from .client import JiraClient, JiraError
 
 FORMATS = ("table", "csv", "json")
@@ -32,6 +32,7 @@ def build_parser():
     p_roles = sub.add_parser("roles", parents=[common], help="who holds each project role")
     p_roles.add_argument("--project", action="append", help="project key (repeatable); default is all classic projects")
     p_roles.add_argument("--findings-only", action="store_true", help="hide rows without a finding")
+    sub.add_parser("permissions", parents=[common], help="permission schemes and the projects that use them")
     return parser
 
 
@@ -91,8 +92,13 @@ def cmd_roles(client, args, out):
     return emit(rows, ("project", "role", "actorType", "actor", "finding"), args, out)
 
 
+def cmd_permissions(client, args, out):
+    return emit(permissions.scheme_summary(client), ("id", "name", "grants", "projects", "unused"), args, out)
+
+
 HANDLERS = {"users": cmd_users, "inactive": cmd_inactive, "licenses": cmd_licenses,
-            "group-members": cmd_group_members, "bulk-groups": cmd_bulk_groups, "roles": cmd_roles}
+            "group-members": cmd_group_members, "bulk-groups": cmd_bulk_groups, "roles": cmd_roles,
+            "permissions": cmd_permissions}
 
 
 def main(argv=None, client=None, out=None):

@@ -1,0 +1,7 @@
+{
+  "expand": "permissions,user,group,projectRole,field,all",
+  "id": 10001,
+  "self": "https://example.atlassian.net/rest/api/3/permissionscheme/10001",
+  "name": "Open Intake",
+  "description": "Customers file requests"
+}
