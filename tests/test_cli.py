@@ -39,6 +39,11 @@ class CliTests(unittest.TestCase):
         self.assertEqual(lines[0], "project,role,actorType,actor,finding")
         self.assertEqual(len(lines), 5)
 
+    def test_permissions_grants(self):
+        from tests.test_permissions import make_session
+        code, text = run(["permissions", "--grants", "--format", "csv"], make_session())
+        self.assertEqual(len(text.splitlines()), 3)
+
     def test_group_members(self):
         from tests.helpers import load
         self.session.add("GET", r"/group/member$", load("group_member.json"))

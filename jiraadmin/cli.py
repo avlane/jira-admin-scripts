@@ -32,7 +32,8 @@ def build_parser():
     p_roles = sub.add_parser("roles", parents=[common], help="who holds each project role")
     p_roles.add_argument("--project", action="append", help="project key (repeatable); default is all classic projects")
     p_roles.add_argument("--findings-only", action="store_true", help="hide rows without a finding")
-    sub.add_parser("permissions", parents=[common], help="permission schemes and the projects that use them")
+    p_perm = sub.add_parser("permissions", parents=[common], help="permission schemes and the projects that use them")
+    p_perm.add_argument("--grants", action="store_true", help="list risky grants instead of the scheme summary")
     return parser
 
 
@@ -93,6 +94,8 @@ def cmd_roles(client, args, out):
 
 
 def cmd_permissions(client, args, out):
+    if args.grants:
+        return emit(permissions.grant_report(client), ("scheme", "permission", "holder", "finding"), args, out)
     return emit(permissions.scheme_summary(client), ("id", "name", "grants", "projects", "unused"), args, out)
 
 

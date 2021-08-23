@@ -32,5 +32,22 @@ class SchemeTests(unittest.TestCase):
             ("Default Permission Scheme", 1, False), ("Open Intake", 1, False), ("Legacy Scheme", 0, True)])
 
 
+class GrantTests(unittest.TestCase):
+    def test_open_and_direct_grants_are_flagged(self):
+        client = JiraClient("https://example.atlassian.net", session=make_session())
+        rows = permissions.grant_report(client)
+        self.assertEqual([(r["scheme"], r["permission"], r["finding"]) for r in rows], [
+            ("Open Intake", "CREATE_ISSUES", "anyone"),
+            ("Open Intake", "DELETE_ISSUES", "direct-user")])
+
+    def test_browse_for_anyone_is_not_flagged(self):
+        scheme = {"name": "Public", "permissions": [{"holder": {"type": "anyone"}, "permission": "BROWSE_PROJECTS"}]}
+        self.assertEqual(list(permissions.grant_findings(scheme)), [])
+
+    def test_everyone_with_a_licence_can_delete(self):
+        scheme = {"name": "Loose", "permissions": [{"holder": {"type": "applicationRole"}, "permission": "DELETE_ISSUES"}]}
+        self.assertEqual(list(permissions.grant_findings(scheme)), [("DELETE_ISSUES", "applicationRole", "broad-risky")])
+
+
 if __name__ == "__main__":
     unittest.main()
