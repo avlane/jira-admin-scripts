@@ -37,3 +37,6 @@ Accounts that are already in (or already out of) the group are skipped.
     export JIRA_URL=https://example.atlassian.net
     export JIRA_EMAIL=you@example.com
     export JIRA_API_TOKEN=...      # https://id.atlassian.com/manage-profile/security/api-tokens
+
+Optional: `JIRA_MAX_RETRIES` (default 5) is how many times a rate-limited request is retried,
+and `JIRA_TIMEOUT` (default 30) is the per-request timeout in seconds.

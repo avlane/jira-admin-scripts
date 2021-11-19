@@ -39,7 +39,7 @@ def build_parser():
 
 def make_client():
     base, email, token = config.from_env()
-    return JiraClient(base, email, token)
+    return JiraClient(base, email, token, **config.tuning())
 
 
 def emit(rows, columns, args, out):

@@ -10,6 +10,25 @@ class ConfigError(Exception):
     pass
 
 
+def _int(env, name, default):
+    raw = env.get(name)
+    if raw in (None, ""):
+        return default
+    try:
+        value = int(raw)
+    except ValueError:
+        raise ConfigError("{} must be a whole number (got {!r})".format(name, raw))
+    if value < 0:
+        raise ConfigError("{} must not be negative".format(name))
+    return value
+
+
+def tuning(environ=None):
+    """Optional knobs: JIRA_MAX_RETRIES for 429 handling and JIRA_TIMEOUT in seconds."""
+    env = os.environ if environ is None else environ
+    return {"max_retries": _int(env, "JIRA_MAX_RETRIES", 5), "timeout": _int(env, "JIRA_TIMEOUT", 30)}
+
+
 def from_env(environ=None):
     """Return (base_url, email, token) or raise ConfigError naming what is missing."""
     env = os.environ if environ is None else environ

@@ -25,5 +25,20 @@ class ConfigTests(unittest.TestCase):
             config.from_env(env)
 
 
+class TuningTests(unittest.TestCase):
+    def test_defaults(self):
+        self.assertEqual(config.tuning({}), {"max_retries": 5, "timeout": 30})
+
+    def test_overrides(self):
+        got = config.tuning({"JIRA_MAX_RETRIES": "2", "JIRA_TIMEOUT": "10"})
+        self.assertEqual(got, {"max_retries": 2, "timeout": 10})
+
+    def test_rejects_junk(self):
+        with self.assertRaises(config.ConfigError):
+            config.tuning({"JIRA_MAX_RETRIES": "lots"})
+        with self.assertRaises(config.ConfigError):
+            config.tuning({"JIRA_TIMEOUT": "-1"})
+
+
 if __name__ == "__main__":
     unittest.main()
