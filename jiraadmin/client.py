@@ -85,6 +85,7 @@ class JiraClient:
                 total = data.get("total")
                 if total is not None and start + len(items) >= total:
                     return
-            elif len(items) < page_size:
-                return
+            # Jira may return fewer items than asked for (it caps some endpoints
+            # below the requested maxResults), so a short bare array is not the
+            # end; keep going until an empty page.
             start += len(items)
