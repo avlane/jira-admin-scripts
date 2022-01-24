@@ -2,7 +2,7 @@
 import argparse
 import sys
 
-from . import config, groups, licenses, permissions, report, roles, users
+from . import config, fields, groups, licenses, permissions, report, roles, users
 from .client import JiraClient, JiraError
 
 FORMATS = ("table", "csv", "json")
@@ -34,6 +34,8 @@ def build_parser():
     p_roles.add_argument("--findings-only", action="store_true", help="hide rows without a finding")
     p_perm = sub.add_parser("permissions", parents=[common], help="permission schemes and the projects that use them")
     p_perm.add_argument("--grants", action="store_true", help="list risky grants instead of the scheme summary")
+    p_fields = sub.add_parser("fields", parents=[common], help="custom field audit")
+    p_fields.add_argument("--duplicates", action="store_true", help="only fields that share a name and type")
     return parser
 
 
@@ -99,9 +101,17 @@ def cmd_permissions(client, args, out):
     return emit(permissions.scheme_summary(client), ("id", "name", "grants", "projects", "unused"), args, out)
 
 
+def cmd_fields(client, args, out):
+    found = fields.custom_fields(client)
+    if args.duplicates:
+        return emit(fields.duplicate_rows(found), ("name", "type", "ids", "variants"), args, out)
+    rows = [{"id": f["id"], "name": f["name"], "type": fields.field_type(f)} for f in found]
+    return emit(rows, ("id", "name", "type"), args, out)
+
+
 HANDLERS = {"users": cmd_users, "inactive": cmd_inactive, "licenses": cmd_licenses,
             "group-members": cmd_group_members, "bulk-groups": cmd_bulk_groups, "roles": cmd_roles,
-            "permissions": cmd_permissions}
+            "permissions": cmd_permissions, "fields": cmd_fields}
 
 
 def main(argv=None, client=None, out=None):
