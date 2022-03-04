@@ -29,3 +29,30 @@ def duplicate_rows(fields):
         rows.append({"name": members[0]["name"], "type": field_type(members[0]),
                      "ids": [m["id"] for m in members], "variants": sorted({m["name"] for m in members})})
     return rows
+
+
+def usage(client, fields, count=None):
+    """Issue count per custom field, using `cf[id] is not EMPTY`.
+
+    Slow: one search per field. Fields the search index cannot query (some app
+    fields) come back with a count of None rather than failing the run.
+    """
+    from .client import JiraError
+    from .search import count_issues
+
+    count = count or count_issues
+    rows = []
+    for field in fields:
+        custom_id = field["schema"]["customId"]
+        try:
+            issues = count(client, "cf[{}] is not EMPTY".format(custom_id))
+        except JiraError as exc:
+            if exc.status != 400:
+                raise
+            issues = None
+        rows.append({"id": field["id"], "name": field["name"], "type": field_type(field), "issues": issues})
+    return rows
+
+
+def unused(rows):
+    return [r for r in rows if r["issues"] == 0]

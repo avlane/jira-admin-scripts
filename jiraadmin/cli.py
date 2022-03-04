@@ -36,6 +36,7 @@ def build_parser():
     p_perm.add_argument("--grants", action="store_true", help="list risky grants instead of the scheme summary")
     p_fields = sub.add_parser("fields", parents=[common], help="custom field audit")
     p_fields.add_argument("--duplicates", action="store_true", help="only fields that share a name and type")
+    p_fields.add_argument("--unused", action="store_true", help="fields no issue has a value for (one search per field)")
     return parser
 
 
@@ -105,6 +106,9 @@ def cmd_fields(client, args, out):
     found = fields.custom_fields(client)
     if args.duplicates:
         return emit(fields.duplicate_rows(found), ("name", "type", "ids", "variants"), args, out)
+    if args.unused:
+        rows = fields.unused(fields.usage(client, found))
+        return emit(rows, ("id", "name", "type", "issues"), args, out)
     rows = [{"id": f["id"], "name": f["name"], "type": fields.field_type(f)} for f in found]
     return emit(rows, ("id", "name", "type"), args, out)
 
