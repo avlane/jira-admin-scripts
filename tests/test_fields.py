@@ -1,8 +1,11 @@
 import unittest
+from datetime import datetime, timezone
 
 from jiraadmin import fields
 from jiraadmin.client import JiraClient
 from tests.helpers import FakeSession, load
+
+NOW = datetime(2022, 4, 17, 12, 0, tzinfo=timezone.utc)
 
 
 def make_client(session=None):
@@ -33,33 +36,30 @@ class FieldListTests(unittest.TestCase):
         self.assertEqual(fields.duplicates([a, b]), [])
 
 
-class UsageTests(unittest.TestCase):
-    def test_counts_and_unqueryable_fields(self):
-        from tests.helpers import FakeResponse
+class SearchTests(unittest.TestCase):
+    def setUp(self):
+        self.session = FakeSession().add("GET", r"/field/search$", load("field_search.json"))
+        self.found = fields.search_fields(make_client(self.session))
 
-        def search(call):
-            jql = call["params"]["jql"]
-            if "10020" in jql:
-                return FakeResponse(400, {"errorMessages": ["The field 'cf[10020]' cannot be searched."]})
-            return {"total": {"cf[10010] is not EMPTY": 120, "cf[10032] is not EMPTY": 0}.get(jql, 3)}
+    def test_requests_usage_data(self):
+        params = self.session.calls[0]["params"]
+        self.assertEqual(params["type"], "custom")
+        self.assertEqual(params["expand"], "lastUsed,screensCount")
+        self.assertEqual(len(self.found), 5)
 
-        session = FakeSession().add("GET", r"/rest/api/3/field$", load("field_list.json"))
-        session.add("GET", r"/rest/api/3/search$", search)
-        client = make_client(session)
-        rows = fields.usage(client, fields.custom_fields(client))
-        by_id = {r["id"]: r["issues"] for r in rows}
-        self.assertEqual(by_id["customfield_10010"], 120)
-        self.assertEqual(by_id["customfield_10032"], 0)
-        self.assertIsNone(by_id["customfield_10020"])
-        self.assertEqual([r["id"] for r in fields.unused(rows)], ["customfield_10032"])
+    def test_candidates_are_ranked_by_confidence(self):
+        rows = fields.unused_candidates(self.found, now=NOW)
+        self.assertEqual([(r["id"], r["confidence"]) for r in rows], [
+            ("customfield_10011", "high"), ("customfield_10032", "medium"), ("customfield_10033", "low")])
 
-    def test_other_errors_propagate(self):
-        from tests.helpers import FakeResponse
-        from jiraadmin.client import JiraError
-        session = FakeSession().add("GET", r"/rest/api/3/search$", FakeResponse(403, {"errorMessages": ["no"]}))
-        client = make_client(session)
-        with self.assertRaises(JiraError):
-            fields.usage(client, [fields.custom_fields(make_client())[0]])
+    def test_untracked_and_recent_fields_are_left_alone(self):
+        ids = {r["id"] for r in fields.unused_candidates(self.found, now=NOW)}
+        self.assertNotIn("customfield_10010", ids)
+        self.assertNotIn("customfield_10040", ids)
+
+    def test_shorter_window_catches_more(self):
+        rows = fields.unused_candidates(self.found, now=NOW, stale_days=3)
+        self.assertIn("customfield_10010", {r["id"] for r in rows})
 
 
 if __name__ == "__main__":

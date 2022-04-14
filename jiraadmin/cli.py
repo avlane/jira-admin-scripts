@@ -36,7 +36,8 @@ def build_parser():
     p_perm.add_argument("--grants", action="store_true", help="list risky grants instead of the scheme summary")
     p_fields = sub.add_parser("fields", parents=[common], help="custom field audit")
     p_fields.add_argument("--duplicates", action="store_true", help="only fields that share a name and type")
-    p_fields.add_argument("--unused", action="store_true", help="fields no issue has a value for (one search per field)")
+    p_fields.add_argument("--unused", action="store_true", help="fields that look abandoned, ranked by confidence")
+    p_fields.add_argument("--stale-days", type=int, default=365, help="age that counts as abandoned (default 365)")
     return parser
 
 
@@ -107,8 +108,8 @@ def cmd_fields(client, args, out):
     if args.duplicates:
         return emit(fields.duplicate_rows(found), ("name", "type", "ids", "variants"), args, out)
     if args.unused:
-        rows = fields.unused(fields.usage(client, found))
-        return emit(rows, ("id", "name", "type", "issues"), args, out)
+        rows = fields.unused_candidates(fields.search_fields(client), stale_days=args.stale_days)
+        return emit(rows, ("id", "name", "type", "screens", "confidence", "reason"), args, out)
     rows = [{"id": f["id"], "name": f["name"], "type": fields.field_type(f)} for f in found]
     return emit(rows, ("id", "name", "type"), args, out)
 

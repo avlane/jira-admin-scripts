@@ -1,0 +1,137 @@
+{
+  "maxResults": 50,
+  "startAt": 0,
+  "total": 5,
+  "isLast": true,
+  "values": [
+    {
+      "id": "customfield_10010",
+      "key": "customfield_10010",
+      "name": "Story Points",
+      "custom": true,
+      "orderable": true,
+      "navigable": true,
+      "searchable": true,
+      "clauseNames": [
+        "cf[10010]",
+        "Story Points"
+      ],
+      "schema": {
+        "type": "number",
+        "custom": "com.atlassian.jira.plugin.system.customfieldtypes:float",
+        "customId": 10010
+      },
+      "screensCount": 4,
+      "contextsCount": 1,
+      "projectsCount": 3,
+      "isLocked": false,
+      "searcherKey": "com.atlassian.jira.plugin.system.customfieldtypes:exactnumber",
+      "lastUsed": {
+        "type": "TRACKED",
+        "value": "2022-04-11T08:20:31.000+0000"
+      }
+    },
+    {
+      "id": "customfield_10011",
+      "key": "customfield_10011",
+      "name": "Story points",
+      "custom": true,
+      "orderable": true,
+      "navigable": true,
+      "searchable": true,
+      "clauseNames": [
+        "cf[10011]",
+        "Story points"
+      ],
+      "schema": {
+        "type": "number",
+        "custom": "com.atlassian.jira.plugin.system.customfieldtypes:float",
+        "customId": 10011
+      },
+      "screensCount": 0,
+      "contextsCount": 1,
+      "projectsCount": 0,
+      "isLocked": false,
+      "lastUsed": {
+        "type": "TRACKED",
+        "value": "2020-08-02T14:00:10.000+0000"
+      }
+    },
+    {
+      "id": "customfield_10032",
+      "key": "customfield_10032",
+      "name": "Legacy Ref",
+      "custom": true,
+      "orderable": true,
+      "navigable": true,
+      "searchable": true,
+      "clauseNames": [
+        "cf[10032]",
+        "Legacy Ref"
+      ],
+      "schema": {
+        "type": "string",
+        "custom": "com.atlassian.jira.plugin.system.customfieldtypes:textfield",
+        "customId": 10032
+      },
+      "screensCount": 1,
+      "contextsCount": 1,
+      "projectsCount": 1,
+      "isLocked": false,
+      "lastUsed": {
+        "type": "TRACKED",
+        "value": "2020-11-30T09:45:00.000+0000"
+      }
+    },
+    {
+      "id": "customfield_10033",
+      "key": "customfield_10033",
+      "name": "Deploy Window",
+      "custom": true,
+      "orderable": true,
+      "navigable": true,
+      "searchable": true,
+      "clauseNames": [
+        "cf[10033]",
+        "Deploy Window"
+      ],
+      "schema": {
+        "type": "datetime",
+        "custom": "com.atlassian.jira.plugin.system.customfieldtypes:datetime",
+        "customId": 10033
+      },
+      "screensCount": 0,
+      "contextsCount": 1,
+      "projectsCount": 0,
+      "isLocked": false,
+      "lastUsed": {
+        "type": "UNKNOWN"
+      }
+    },
+    {
+      "id": "customfield_10040",
+      "key": "customfield_10040",
+      "name": "Rollout Ring",
+      "custom": true,
+      "orderable": true,
+      "navigable": true,
+      "searchable": true,
+      "clauseNames": [
+        "cf[10040]",
+        "Rollout Ring"
+      ],
+      "schema": {
+        "type": "option",
+        "custom": "com.atlassian.jira.plugin.system.customfieldtypes:select",
+        "customId": 10040
+      },
+      "screensCount": 2,
+      "contextsCount": 1,
+      "projectsCount": 2,
+      "isLocked": false,
+      "lastUsed": {
+        "type": "NOT_TRACKED"
+      }
+    }
+  ]
+}

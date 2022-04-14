@@ -1,4 +1,5 @@
 """Custom field audit."""
+from datetime import datetime, timedelta, timezone
 
 
 def custom_fields(client):
@@ -6,8 +7,15 @@ def custom_fields(client):
     return [f for f in client.get("field") if f.get("custom")]
 
 
+def search_fields(client):
+    """Custom fields with screen counts and last-used data, via the paged field search."""
+    params = {"type": "custom", "expand": "lastUsed,screensCount"}
+    return list(client.paginate("field/search", params=params, page_size=50))
+
+
 def field_type(field):
-    return (field.get("schema") or {}).get("custom", "").rpartition(":")[2] or (field.get("schema") or {}).get("type", "")
+    schema = field.get("schema") or {}
+    return schema.get("custom", "").rpartition(":")[2] or schema.get("type", "")
 
 
 def duplicates(fields):
@@ -31,28 +39,33 @@ def duplicate_rows(fields):
     return rows
 
 
-def usage(client, fields, count=None):
-    """Issue count per custom field, using `cf[id] is not EMPTY`.
+def _parse(value):
+    return datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%f%z")
 
-    Slow: one search per field. Fields the search index cannot query (some app
-    fields) come back with a count of None rather than failing the run.
+
+def unused_candidates(fields, now=None, stale_days=365):
+    """Fields that look abandoned, with a confidence level.
+
+    high    last value written more than stale_days ago and on no screen
+    medium  last value written more than stale_days ago but still on a screen
+    low     Jira has no usage data for the field and it is on no screen
+
+    Fields whose usage is not tracked are never reported on that basis alone.
     """
-    from .client import JiraError
-    from .search import count_issues
-
-    count = count or count_issues
+    now = now or datetime.now(timezone.utc)
+    cutoff = now - timedelta(days=stale_days)
     rows = []
     for field in fields:
-        custom_id = field["schema"]["customId"]
-        try:
-            issues = count(client, "cf[{}] is not EMPTY".format(custom_id))
-        except JiraError as exc:
-            if exc.status != 400:
-                raise
-            issues = None
-        rows.append({"id": field["id"], "name": field["name"], "type": field_type(field), "issues": issues})
-    return rows
-
-
-def unused(rows):
-    return [r for r in rows if r["issues"] == 0]
+        last = field.get("lastUsed") or {}
+        on_screens = field.get("screensCount")
+        confidence, reason = None, ""
+        if last.get("type") == "TRACKED" and _parse(last["value"]) < cutoff:
+            confidence = "high" if on_screens == 0 else "medium"
+            reason = "last used " + last["value"][:10]
+        elif last.get("type") == "UNKNOWN" and on_screens == 0:
+            confidence, reason = "low", "no usage data, on no screen"
+        if confidence:
+            rows.append({"id": field["id"], "name": field["name"], "type": field_type(field),
+                         "screens": on_screens, "confidence": confidence, "reason": reason})
+    order = {"high": 0, "medium": 1, "low": 2}
+    return sorted(rows, key=lambda r: (order[r["confidence"]], r["id"]))
