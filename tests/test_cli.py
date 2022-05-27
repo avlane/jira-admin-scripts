@@ -44,6 +44,15 @@ class CliTests(unittest.TestCase):
         code, text = run(["permissions", "--grants", "--format", "csv"], make_session())
         self.assertEqual(len(text.splitlines()), 3)
 
+    def test_trash_fields_dry_run(self):
+        from tests.helpers import load
+        self.session.add("GET", r"/field/search$", load("field_search.json"))
+        code, text = run(["trash-fields", "--format", "csv"], self.session)
+        self.assertEqual(code, 0)
+        self.assertIn("dry run", text)
+        self.assertIn("customfield_10011", text)
+        self.assertEqual(self.session.calls_to("DELETE", "/field/"), [])
+
     def test_group_members(self):
         from tests.helpers import load
         self.session.add("GET", r"/group/member$", load("group_member.json"))

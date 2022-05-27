@@ -62,5 +62,22 @@ class SearchTests(unittest.TestCase):
         self.assertIn("customfield_10010", {r["id"] for r in rows})
 
 
+class TrashTests(unittest.TestCase):
+    def test_dry_run_sends_nothing(self):
+        session = FakeSession()
+        rows = fields.trash_fields(make_client(session), ["customfield_10011"])
+        self.assertEqual(rows[0]["status"], "planned")
+        self.assertEqual(session.calls, [])
+
+    def test_apply_deletes_and_reports_failures(self):
+        from tests.helpers import FakeResponse
+        session = FakeSession()
+        session.add("DELETE", r"/field/customfield_10011$", FakeResponse(303, None, {"Location": "/rest/api/3/task/1"}))
+        session.add("DELETE", r"/field/customfield_10032$", FakeResponse(400, {"errorMessages": ["Field is locked"]}))
+        rows = fields.trash_fields(make_client(session), ["customfield_10011", "customfield_10032"], apply=True)
+        self.assertEqual([r["status"] for r in rows], ["trashed", "failed"])
+        self.assertIn("Field is locked", rows[1]["detail"])
+
+
 if __name__ == "__main__":
     unittest.main()

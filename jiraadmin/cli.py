@@ -38,6 +38,11 @@ def build_parser():
     p_fields.add_argument("--duplicates", action="store_true", help="only fields that share a name and type")
     p_fields.add_argument("--unused", action="store_true", help="fields that look abandoned, ranked by confidence")
     p_fields.add_argument("--stale-days", type=int, default=365, help="age that counts as abandoned (default 365)")
+    p_trash = sub.add_parser("trash-fields", parents=[common], help="move abandoned custom fields to the trash")
+    p_trash.add_argument("--confidence", choices=("high", "medium", "low"), default="high",
+                         help="lowest confidence level to act on (default high)")
+    p_trash.add_argument("--stale-days", type=int, default=365)
+    p_trash.add_argument("--apply", action="store_true", help="actually trash the fields (default is a dry run)")
     return parser
 
 
@@ -114,9 +119,24 @@ def cmd_fields(client, args, out):
     return emit(rows, ("id", "name", "type"), args, out)
 
 
+def cmd_trash_fields(client, args, out):
+    levels = ("high", "medium", "low")
+    wanted = levels[:levels.index(args.confidence) + 1]
+    candidates = [c for c in fields.unused_candidates(fields.search_fields(client), stale_days=args.stale_days)
+                  if c["confidence"] in wanted]
+    if not args.apply:
+        out.write("dry run: pass --apply to move these to the trash\n")
+    results = fields.trash_fields(client, [c["id"] for c in candidates], apply=args.apply)
+    names = {c["id"]: c["name"] for c in candidates}
+    rows = [dict(r, name=names[r["id"]]) for r in results]
+    emit(rows, ("id", "name", "status", "detail"), args, out)
+    return 1 if any(r["status"] == "failed" for r in rows) else 0
+
+
 HANDLERS = {"users": cmd_users, "inactive": cmd_inactive, "licenses": cmd_licenses,
             "group-members": cmd_group_members, "bulk-groups": cmd_bulk_groups, "roles": cmd_roles,
-            "permissions": cmd_permissions, "fields": cmd_fields}
+            "permissions": cmd_permissions, "fields": cmd_fields,
+            "trash-fields": cmd_trash_fields}
 
 
 def main(argv=None, client=None, out=None):
