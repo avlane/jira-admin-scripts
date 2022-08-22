@@ -1,0 +1,168 @@
+{
+  "maxResults": 50,
+  "startAt": 0,
+  "total": 5,
+  "isLast": true,
+  "values": [
+    {
+      "expand": "description,owner,jql,viewUrl,searchUrl,favourite,favouritedCount,sharePermissions,editPermissions,isWritable,subscriptions",
+      "self": "https://example.atlassian.net/rest/api/3/filter/10000",
+      "id": "10000",
+      "name": "Open bugs",
+      "owner": {
+        "self": "https://example.atlassian.net/rest/api/3/user?accountId=5b10ac8d82e05b22cc7d4ef5",
+        "accountId": "5b10ac8d82e05b22cc7d4ef5",
+        "avatarUrls": {
+          "48x48": "https://secure.gravatar.com/avatar/0.png"
+        },
+        "displayName": "Alice Moreau",
+        "active": true
+      },
+      "jql": "project = PLAT ORDER BY created DESC",
+      "viewUrl": "https://example.atlassian.net/issues/?filter=10000",
+      "searchUrl": "https://example.atlassian.net/rest/api/3/search?jql=project%20%3D%20PLAT",
+      "favourite": false,
+      "favouritedCount": 4,
+      "sharePermissions": [
+        {
+          "id": 10000,
+          "type": "global"
+        }
+      ],
+      "subscriptions": {
+        "size": 1,
+        "items": [],
+        "max-results": 1000,
+        "start-index": 0,
+        "end-index": 0
+      }
+    },
+    {
+      "expand": "description,owner,jql,viewUrl,searchUrl,favourite,favouritedCount,sharePermissions,editPermissions,isWritable,subscriptions",
+      "self": "https://example.atlassian.net/rest/api/3/filter/10001",
+      "id": "10001",
+      "name": "Dan's backlog",
+      "owner": {
+        "self": "https://example.atlassian.net/rest/api/3/user?accountId=557058:aa11bb22-cc33-44dd-ee55-ff6677889900",
+        "accountId": "557058:aa11bb22-cc33-44dd-ee55-ff6677889900",
+        "avatarUrls": {
+          "48x48": "https://secure.gravatar.com/avatar/0.png"
+        },
+        "displayName": "Dan Whitfield",
+        "active": false
+      },
+      "jql": "project = PLAT ORDER BY created DESC",
+      "viewUrl": "https://example.atlassian.net/issues/?filter=10001",
+      "searchUrl": "https://example.atlassian.net/rest/api/3/search?jql=project%20%3D%20PLAT",
+      "favourite": false,
+      "favouritedCount": 0,
+      "sharePermissions": [],
+      "subscriptions": {
+        "size": 0,
+        "items": [],
+        "max-results": 1000,
+        "start-index": 0,
+        "end-index": 0
+      }
+    },
+    {
+      "expand": "description,owner,jql,viewUrl,searchUrl,favourite,favouritedCount,sharePermissions,editPermissions,isWritable,subscriptions",
+      "self": "https://example.atlassian.net/rest/api/3/filter/10002",
+      "id": "10002",
+      "name": "tmp test",
+      "owner": {
+        "self": "https://example.atlassian.net/rest/api/3/user?accountId=5b6a3c1f2d8e4a0b9c7f1e22",
+        "accountId": "5b6a3c1f2d8e4a0b9c7f1e22",
+        "avatarUrls": {
+          "48x48": "https://secure.gravatar.com/avatar/0.png"
+        },
+        "displayName": "Bob Okafor",
+        "active": true
+      },
+      "jql": "project = PLAT ORDER BY created DESC",
+      "viewUrl": "https://example.atlassian.net/issues/?filter=10002",
+      "searchUrl": "https://example.atlassian.net/rest/api/3/search?jql=project%20%3D%20PLAT",
+      "favourite": false,
+      "favouritedCount": 0,
+      "sharePermissions": [],
+      "subscriptions": {
+        "size": 0,
+        "items": [],
+        "max-results": 1000,
+        "start-index": 0,
+        "end-index": 0
+      }
+    },
+    {
+      "expand": "description,owner,jql,viewUrl,searchUrl,favourite,favouritedCount,sharePermissions,editPermissions,isWritable,subscriptions",
+      "self": "https://example.atlassian.net/rest/api/3/filter/10003",
+      "id": "10003",
+      "name": "Sprint health",
+      "owner": {
+        "self": "https://example.atlassian.net/rest/api/3/user?accountId=712020:6f1d2a3b-4c5d-4e6f-8a9b-0c1d2e3f4a5b",
+        "accountId": "712020:6f1d2a3b-4c5d-4e6f-8a9b-0c1d2e3f4a5b",
+        "avatarUrls": {
+          "48x48": "https://secure.gravatar.com/avatar/0.png"
+        },
+        "displayName": "Carol Nguyen",
+        "active": true
+      },
+      "jql": "project = PLAT ORDER BY created DESC",
+      "viewUrl": "https://example.atlassian.net/issues/?filter=10003",
+      "searchUrl": "https://example.atlassian.net/rest/api/3/search?jql=project%20%3D%20PLAT",
+      "favourite": false,
+      "favouritedCount": 2,
+      "sharePermissions": [
+        {
+          "id": 10001,
+          "type": "project",
+          "project": {
+            "id": "10000",
+            "key": "PLAT",
+            "name": "Platform"
+          }
+        }
+      ],
+      "subscriptions": {
+        "size": 0,
+        "items": [],
+        "max-results": 1000,
+        "start-index": 0,
+        "end-index": 0
+      }
+    },
+    {
+      "expand": "description,owner,jql,viewUrl,searchUrl,favourite,favouritedCount,sharePermissions,editPermissions,isWritable,subscriptions",
+      "self": "https://example.atlassian.net/rest/api/3/filter/10004",
+      "id": "10004",
+      "name": "Ops on-call",
+      "owner": {
+        "self": "https://example.atlassian.net/rest/api/3/user?accountId=557058:aa11bb22-cc33-44dd-ee55-ff6677889900",
+        "accountId": "557058:aa11bb22-cc33-44dd-ee55-ff6677889900",
+        "avatarUrls": {
+          "48x48": "https://secure.gravatar.com/avatar/0.png"
+        },
+        "displayName": "Dan Whitfield",
+        "active": false
+      },
+      "jql": "project = PLAT ORDER BY created DESC",
+      "viewUrl": "https://example.atlassian.net/issues/?filter=10004",
+      "searchUrl": "https://example.atlassian.net/rest/api/3/search?jql=project%20%3D%20PLAT",
+      "favourite": false,
+      "favouritedCount": 7,
+      "sharePermissions": [
+        {
+          "id": 10000,
+          "type": "global"
+        }
+      ],
+      "subscriptions": {
+        "size": 0,
+        "items": [],
+        "max-results": 1000,
+        "start-index": 0,
+        "end-index": 0
+      }
+    }
+  ]
+}
