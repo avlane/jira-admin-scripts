@@ -1,0 +1,90 @@
+{
+  "maxResults": 50,
+  "startAt": 0,
+  "total": 4,
+  "isLast": true,
+  "values": [
+    {
+      "id": "10000",
+      "isFavourite": false,
+      "name": "Platform overview",
+      "owner": {
+        "self": "https://example.atlassian.net/rest/api/3/user?accountId=5b10ac8d82e05b22cc7d4ef5",
+        "accountId": "5b10ac8d82e05b22cc7d4ef5",
+        "avatarUrls": {
+          "48x48": "https://secure.gravatar.com/avatar/0.png"
+        },
+        "displayName": "Alice Moreau",
+        "active": true
+      },
+      "popularity": 6,
+      "sharePermissions": [
+        {
+          "id": 10000,
+          "type": "global"
+        }
+      ],
+      "editPermissions": [],
+      "view": "https://example.atlassian.net/secure/Dashboard.jspa?selectPageId=10000",
+      "isWritable": true,
+      "systemDashboard": false
+    },
+    {
+      "id": "10001",
+      "isFavourite": false,
+      "name": "Dan's scratch",
+      "owner": {
+        "self": "https://example.atlassian.net/rest/api/3/user?accountId=557058:aa11bb22-cc33-44dd-ee55-ff6677889900",
+        "accountId": "557058:aa11bb22-cc33-44dd-ee55-ff6677889900",
+        "avatarUrls": {
+          "48x48": "https://secure.gravatar.com/avatar/0.png"
+        },
+        "displayName": "Dan Whitfield",
+        "active": false
+      },
+      "popularity": 0,
+      "sharePermissions": [],
+      "editPermissions": [],
+      "view": "https://example.atlassian.net/secure/Dashboard.jspa?selectPageId=10001",
+      "isWritable": true,
+      "systemDashboard": false
+    },
+    {
+      "id": "10002",
+      "isFavourite": false,
+      "name": "Release tracker",
+      "owner": {
+        "self": "https://example.atlassian.net/rest/api/3/user?accountId=5b6a3c1f2d8e4a0b9c7f1e22",
+        "accountId": "5b6a3c1f2d8e4a0b9c7f1e22",
+        "avatarUrls": {
+          "48x48": "https://secure.gravatar.com/avatar/0.png"
+        },
+        "displayName": "Bob Okafor",
+        "active": true
+      },
+      "popularity": 0,
+      "sharePermissions": [],
+      "editPermissions": [],
+      "view": "https://example.atlassian.net/secure/Dashboard.jspa?selectPageId=10002",
+      "isWritable": true,
+      "systemDashboard": false
+    },
+    {
+      "id": "10003",
+      "isFavourite": false,
+      "name": "Legacy KPIs",
+      "owner": null,
+      "popularity": 1,
+      "sharePermissions": [
+        {
+          "id": 10000,
+          "type": "global"
+        }
+      ],
+      "editPermissions": [],
+      "view": "https://example.atlassian.net/secure/Dashboard.jspa?selectPageId=10003",
+      "isWritable": true,
+      "systemDashboard": false
+    }
+  ]
+}
