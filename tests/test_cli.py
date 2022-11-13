@@ -53,6 +53,19 @@ class CliTests(unittest.TestCase):
         self.assertIn("customfield_10011", text)
         self.assertEqual(self.session.calls_to("DELETE", "/field/"), [])
 
+    def test_filters_findings_only(self):
+        from tests.helpers import load
+        self.session.add("GET", r"/filter/search$", load("filter_search.json"))
+        code, text = run(["filters", "--findings-only", "--format", "csv"], self.session)
+        self.assertEqual(len(text.splitlines()), 4)
+
+    def test_dashboards(self):
+        from tests.helpers import load
+        self.session.add("GET", r"/dashboard/search$", load("dashboard_search.json"))
+        code, text = run(["dashboards"], self.session)
+        self.assertEqual(code, 0)
+        self.assertIn("Legacy KPIs", text)
+
     def test_group_members(self):
         from tests.helpers import load
         self.session.add("GET", r"/group/member$", load("group_member.json"))

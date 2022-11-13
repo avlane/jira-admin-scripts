@@ -19,6 +19,10 @@ This installs a `jiraadmin` command; `python -m jiraadmin` works from a checkout
     python -m jiraadmin inactive --days 120 --format csv
     python -m jiraadmin licenses --warn-at 85
     python -m jiraadmin roles --findings-only
+    python -m jiraadmin fields --duplicates
+    python -m jiraadmin fields --unused
+    python -m jiraadmin filters --findings-only
+    python -m jiraadmin dashboards --findings-only
 
 Every command takes `--format table|csv|json`.
 

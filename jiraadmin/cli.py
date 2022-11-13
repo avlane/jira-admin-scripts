@@ -2,7 +2,7 @@
 import argparse
 import sys
 
-from . import config, fields, groups, licenses, permissions, report, roles, users
+from . import config, dashboards, fields, filters, groups, licenses, permissions, report, roles, users
 from .client import JiraClient, JiraError
 
 FORMATS = ("table", "csv", "json")
@@ -43,6 +43,10 @@ def build_parser():
                          help="lowest confidence level to act on (default high)")
     p_trash.add_argument("--stale-days", type=int, default=365)
     p_trash.add_argument("--apply", action="store_true", help="actually trash the fields (default is a dry run)")
+    for name, helptext in (("filters", "saved filters that are orphaned or idle"),
+                           ("dashboards", "dashboards that are orphaned or idle")):
+        p = sub.add_parser(name, parents=[common], help=helptext)
+        p.add_argument("--findings-only", action="store_true", help="hide items with nothing to report")
     return parser
 
 
@@ -133,10 +137,26 @@ def cmd_trash_fields(client, args, out):
     return 1 if any(r["status"] == "failed" for r in rows) else 0
 
 
+def _cleanup_rows(rows, args):
+    if args.findings_only:
+        rows = [r for r in rows if r["findings"]]
+    return rows
+
+
+def cmd_filters(client, args, out):
+    rows = _cleanup_rows(filters.audit(client), args)
+    return emit(rows, ("id", "name", "owner", "ownerState", "shared", "favourites", "subscriptions", "findings"), args, out)
+
+
+def cmd_dashboards(client, args, out):
+    rows = _cleanup_rows(dashboards.audit(client), args)
+    return emit(rows, ("id", "name", "owner", "ownerState", "shared", "favourites", "findings"), args, out)
+
+
 HANDLERS = {"users": cmd_users, "inactive": cmd_inactive, "licenses": cmd_licenses,
             "group-members": cmd_group_members, "bulk-groups": cmd_bulk_groups, "roles": cmd_roles,
             "permissions": cmd_permissions, "fields": cmd_fields,
-            "trash-fields": cmd_trash_fields}
+            "trash-fields": cmd_trash_fields, "filters": cmd_filters, "dashboards": cmd_dashboards}
 
 
 def main(argv=None, client=None, out=None):
