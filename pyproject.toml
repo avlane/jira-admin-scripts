@@ -7,7 +7,7 @@ name = "jira-admin-scripts"
 dynamic = ["version", "description"]
 readme = "README.md"
 license = { file = "LICENSE" }
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 dependencies = ["requests>=2.22"]
 authors = [{ name = "Avery Lane" }]
 

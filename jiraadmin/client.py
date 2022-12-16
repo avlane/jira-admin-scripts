@@ -1,5 +1,6 @@
 """Minimal Jira Cloud REST client (basic auth with an API token)."""
 import time
+from typing import Any, Iterator, Optional
 
 
 class JiraError(Exception):
@@ -18,7 +19,7 @@ def default_session(email, token):
     return session
 
 
-def retry_after(resp, default=5):
+def retry_after(resp, default: int = 5) -> int:
     """Seconds to wait before retrying a 429, from the Retry-After header."""
     value = resp.headers.get("Retry-After")
     try:
@@ -38,7 +39,7 @@ class JiraClient:
         self.max_retries = max_retries
         self.sleep = sleep
 
-    def url(self, path):
+    def url(self, path: str) -> str:
         if path.startswith("/rest/"):
             return self.base_url + path
         return self.base_url + self.API + path.lstrip("/")
@@ -60,10 +61,11 @@ class JiraClient:
             return None
         return resp.json()
 
-    def get(self, path, params=None):
+    def get(self, path: str, params: Optional[dict] = None) -> Any:
         return self.request("GET", path, params=params)
 
-    def paginate(self, path, params=None, key="values", page_size=50):
+    def paginate(self, path: str, params: Optional[dict] = None, key: str = "values",
+                 page_size: int = 50) -> Iterator[dict]:
         """Yield every item from a startAt/maxResults endpoint.
 
         Handles both the paged shape ({"values": [...], "isLast": ...}) and

@@ -1,5 +1,6 @@
 """Read connection settings from environment variables."""
 import os
+from typing import Optional
 
 URL_VAR = "JIRA_URL"
 EMAIL_VAR = "JIRA_EMAIL"
@@ -10,7 +11,7 @@ class ConfigError(Exception):
     pass
 
 
-def _int(env, name, default):
+def _int(env: dict[str, str], name: str, default: int) -> int:
     raw = env.get(name)
     if raw in (None, ""):
         return default
@@ -23,13 +24,13 @@ def _int(env, name, default):
     return value
 
 
-def tuning(environ=None):
+def tuning(environ: Optional[dict[str, str]] = None) -> dict[str, int]:
     """Optional knobs: JIRA_MAX_RETRIES for 429 handling and JIRA_TIMEOUT in seconds."""
     env = os.environ if environ is None else environ
     return {"max_retries": _int(env, "JIRA_MAX_RETRIES", 5), "timeout": _int(env, "JIRA_TIMEOUT", 30)}
 
 
-def from_env(environ=None):
+def from_env(environ: Optional[dict[str, str]] = None) -> tuple[str, str, str]:
     """Return (base_url, email, token) or raise ConfigError naming what is missing."""
     env = os.environ if environ is None else environ
     missing = [name for name in (URL_VAR, EMAIL_VAR, TOKEN_VAR) if not env.get(name)]

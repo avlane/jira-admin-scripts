@@ -4,7 +4,7 @@ import io
 import json
 
 
-def _cell(value):
+def _cell(value) -> str:
     if value is None:
         return ""
     if isinstance(value, bool):
@@ -14,7 +14,7 @@ def _cell(value):
     return str(value)
 
 
-def render(rows, columns, fmt="table"):
+def render(rows: list[dict], columns: tuple[str, ...], fmt: str = "table") -> str:
     if fmt == "json":
         return json.dumps(rows, indent=2) + "\n"
     cells = [[_cell(row.get(col)) for col in columns] for row in rows]
