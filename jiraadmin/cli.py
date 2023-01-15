@@ -47,6 +47,9 @@ def build_parser():
                            ("dashboards", "dashboards that are orphaned or idle")):
         p = sub.add_parser(name, parents=[common], help=helptext)
         p.add_argument("--findings-only", action="store_true", help="hide items with nothing to report")
+    p_transfer = sub.add_parser("transfer-filters", parents=[common], help="give orphaned filters to another account")
+    p_transfer.add_argument("--to", required=True, metavar="ACCOUNT_ID", help="accountId of the new owner")
+    p_transfer.add_argument("--apply", action="store_true", help="make the change (default is a dry run)")
     return parser
 
 
@@ -153,10 +156,22 @@ def cmd_dashboards(client, args, out):
     return emit(rows, ("id", "name", "owner", "ownerState", "shared", "favourites", "findings"), args, out)
 
 
+def cmd_transfer_filters(client, args, out):
+    orphaned = [r for r in filters.audit(client) if "orphaned" in r["findings"]]
+    if not args.apply:
+        out.write("dry run: pass --apply to make these changes\n")
+    results = filters.transfer_owner(client, [r["id"] for r in orphaned], args.to, apply=args.apply)
+    names = {r["id"]: r for r in orphaned}
+    rows = [dict(r, name=names[r["id"]]["name"], owner=names[r["id"]]["owner"]) for r in results]
+    emit(rows, ("id", "name", "owner", "status", "detail"), args, out)
+    return 1 if any(r["status"] == "failed" for r in rows) else 0
+
+
 HANDLERS = {"users": cmd_users, "inactive": cmd_inactive, "licenses": cmd_licenses,
             "group-members": cmd_group_members, "bulk-groups": cmd_bulk_groups, "roles": cmd_roles,
             "permissions": cmd_permissions, "fields": cmd_fields,
-            "trash-fields": cmd_trash_fields, "filters": cmd_filters, "dashboards": cmd_dashboards}
+            "trash-fields": cmd_trash_fields, "filters": cmd_filters, "dashboards": cmd_dashboards,
+            "transfer-filters": cmd_transfer_filters}
 
 
 def main(argv=None, client=None, out=None):

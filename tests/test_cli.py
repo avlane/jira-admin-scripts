@@ -66,6 +66,14 @@ class CliTests(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertIn("Legacy KPIs", text)
 
+    def test_transfer_filters_dry_run(self):
+        from tests.helpers import load
+        self.session.add("GET", r"/filter/search$", load("filter_search.json"))
+        code, text = run(["transfer-filters", "--to", "NEWOWNER", "--format", "csv"], self.session)
+        self.assertEqual(code, 0)
+        self.assertEqual(text.count("planned"), 2)
+        self.assertEqual(self.session.calls_to("PUT", "/owner"), [])
+
     def test_group_members(self):
         from tests.helpers import load
         self.session.add("GET", r"/group/member$", load("group_member.json"))

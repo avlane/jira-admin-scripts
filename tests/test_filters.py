@@ -41,5 +41,22 @@ class FilterAuditTests(unittest.TestCase):
         self.assertEqual(rows["Open bugs"]["subscriptions"], 1)
 
 
+class TransferTests(unittest.TestCase):
+    def test_dry_run(self):
+        client, session = make_client()
+        rows = filters.transfer_owner(client, ["10001"], "NEWOWNER")
+        self.assertEqual(rows, [{"id": "10001", "status": "planned", "detail": "would transfer"}])
+        self.assertEqual(session.calls, [])
+
+    def test_apply_puts_new_owner(self):
+        from tests.helpers import FakeResponse
+        client, session = make_client()
+        session.add("PUT", r"/filter/10001/owner$", FakeResponse(204))
+        session.add("PUT", r"/filter/10004/owner$", FakeResponse(403, {"errorMessages": ["Forbidden"]}))
+        rows = filters.transfer_owner(client, ["10001", "10004"], "NEWOWNER", apply=True)
+        self.assertEqual([r["status"] for r in rows], ["transferred", "failed"])
+        self.assertEqual(session.calls_to("PUT", "/filter/10001/owner")[0]["json"], {"accountId": "NEWOWNER"})
+
+
 if __name__ == "__main__":
     unittest.main()
