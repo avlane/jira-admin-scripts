@@ -26,6 +26,23 @@ def audit(client):
     return rows
 
 
+def transfer_plan(rows, min_favourites=1):
+    """Decide what to do with each orphaned filter row from audit().
+
+    Filters that anybody still relies on (shared, favourited, or subscribed to)
+    are worth keeping; the rest are better deleted than inherited.
+    """
+    plan = []
+    for row in rows:
+        if "orphaned" not in row["findings"]:
+            continue
+        in_use = row["shared"] or row["favourites"] >= min_favourites or row["subscriptions"] > 0
+        plan.append({"id": row["id"], "name": row["name"], "owner": row["owner"],
+                     "action": "transfer" if in_use else "leave",
+                     "reason": "still in use" if in_use else "unused; consider deleting"})
+    return plan
+
+
 def transfer_owner(client, filter_ids, new_owner, apply=False):
     """Hand filters to another account. Dry run unless apply is set.
 

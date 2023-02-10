@@ -69,9 +69,11 @@ class CliTests(unittest.TestCase):
     def test_transfer_filters_dry_run(self):
         from tests.helpers import load
         self.session.add("GET", r"/filter/search$", load("filter_search.json"))
+        self.session.add("GET", r"/rest/api/3/user$", load("users_search.json")[0])
         code, text = run(["transfer-filters", "--to", "NEWOWNER", "--format", "csv"], self.session)
         self.assertEqual(code, 0)
-        self.assertEqual(text.count("planned"), 2)
+        self.assertEqual(text.count("planned"), 1)
+        self.assertEqual(text.count("left"), 1)
         self.assertEqual(self.session.calls_to("PUT", "/owner"), [])
 
     def test_group_members(self):

@@ -38,3 +38,17 @@ def inactive_users(client, days=90, limit=None, count=count_issues):
             rows.append({"accountId": user["accountId"], "displayName": user["displayName"],
                          "emailAddress": user.get("emailAddress", ""), "recentIssues": 0})
     return rows
+
+
+def get_user(client, account_id):
+    return client.get("user", params={"accountId": account_id})
+
+
+def require_assignable(client, account_id):
+    """Fetch an account and make sure it can own things: an active Atlassian (human) account."""
+    from .client import JiraError
+
+    user = get_user(client, account_id)
+    if user.get("accountType") != "atlassian" or not user.get("active"):
+        raise JiraError("account {} is not an active user account".format(account_id))
+    return user

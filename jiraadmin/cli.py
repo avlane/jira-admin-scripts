@@ -49,6 +49,8 @@ def build_parser():
         p.add_argument("--findings-only", action="store_true", help="hide items with nothing to report")
     p_transfer = sub.add_parser("transfer-filters", parents=[common], help="give orphaned filters to another account")
     p_transfer.add_argument("--to", required=True, metavar="ACCOUNT_ID", help="accountId of the new owner")
+    p_transfer.add_argument("--min-favourites", type=int, default=1,
+                            help="favourites that make an unshared filter worth keeping (default 1)")
     p_transfer.add_argument("--apply", action="store_true", help="make the change (default is a dry run)")
     return parser
 
@@ -157,13 +159,17 @@ def cmd_dashboards(client, args, out):
 
 
 def cmd_transfer_filters(client, args, out):
-    orphaned = [r for r in filters.audit(client) if "orphaned" in r["findings"]]
+    users.require_assignable(client, args.to)
+    plan = filters.transfer_plan(filters.audit(client), args.min_favourites)
     if not args.apply:
         out.write("dry run: pass --apply to make these changes\n")
-    results = filters.transfer_owner(client, [r["id"] for r in orphaned], args.to, apply=args.apply)
-    names = {r["id"]: r for r in orphaned}
-    rows = [dict(r, name=names[r["id"]]["name"], owner=names[r["id"]]["owner"]) for r in results]
-    emit(rows, ("id", "name", "owner", "status", "detail"), args, out)
+    chosen = [p["id"] for p in plan if p["action"] == "transfer"]
+    done = {r["id"]: r for r in filters.transfer_owner(client, chosen, args.to, apply=args.apply)}
+    rows = []
+    for item in plan:
+        result = done.get(item["id"], {"status": "left", "detail": item["reason"]})
+        rows.append(dict(item, status=result["status"], detail=result["detail"] or item["reason"]))
+    emit(rows, ("id", "name", "owner", "action", "status", "detail"), args, out)
     return 1 if any(r["status"] == "failed" for r in rows) else 0
 
 

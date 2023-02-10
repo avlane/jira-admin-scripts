@@ -51,3 +51,21 @@ class InactiveTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class AssignableTests(unittest.TestCase):
+    def client(self, user):
+        session = FakeSession().add("GET", r"/rest/api/3/user$", user)
+        return JiraClient("https://example.atlassian.net", session=session), session
+
+    def test_active_human_is_accepted(self):
+        client, session = self.client(load("users_search.json")[0])
+        self.assertEqual(users.require_assignable(client, "5b10ac8d82e05b22cc7d4ef5")["displayName"], "Alice Moreau")
+        self.assertEqual(session.calls[0]["params"], {"accountId": "5b10ac8d82e05b22cc7d4ef5"})
+
+    def test_inactive_and_app_accounts_are_refused(self):
+        from jiraadmin.client import JiraError
+        for index in (3, 5):
+            client, _ = self.client(load("users_search.json")[index])
+            with self.assertRaises(JiraError):
+                users.require_assignable(client, "x")

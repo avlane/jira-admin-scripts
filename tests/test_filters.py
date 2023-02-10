@@ -41,6 +41,24 @@ class FilterAuditTests(unittest.TestCase):
         self.assertEqual(rows["Open bugs"]["subscriptions"], 1)
 
 
+class TransferPlanTests(unittest.TestCase):
+    def test_unused_orphans_are_left_alone(self):
+        client, _ = make_client()
+        plan = {p["name"]: p for p in filters.transfer_plan(filters.audit(client))}
+        self.assertEqual(set(plan), {"Dan's backlog", "Ops on-call"})
+        self.assertEqual(plan["Ops on-call"]["action"], "transfer")
+        self.assertEqual(plan["Dan's backlog"]["action"], "leave")
+
+    def test_favourite_threshold(self):
+        client, _ = make_client()
+        rows = filters.audit(client)
+        strict = {p["name"]: p["action"] for p in filters.transfer_plan(rows, min_favourites=50)}
+        self.assertEqual(strict["Ops on-call"], "transfer")  # still shared
+        rows = [dict(r, shared=False) for r in rows]
+        strict = {p["name"]: p["action"] for p in filters.transfer_plan(rows, min_favourites=50)}
+        self.assertEqual(strict["Ops on-call"], "leave")
+
+
 class TransferTests(unittest.TestCase):
     def test_dry_run(self):
         client, session = make_client()
