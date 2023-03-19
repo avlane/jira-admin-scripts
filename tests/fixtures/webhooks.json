@@ -1,0 +1,55 @@
+[
+  {
+    "name": "Deploy notifier",
+    "description": "Tells CI about updates on the platform project",
+    "url": "https://ci.example.com/hooks/jira?token=s3cr3t-abc123",
+    "excludeBody": false,
+    "filters": {
+      "issue-related-events-section": "project = PLAT"
+    },
+    "events": [
+      "jira:issue_updated",
+      "comment_created"
+    ],
+    "enabled": true,
+    "self": "https://example.atlassian.net/rest/webhooks/1.0/webhook/1",
+    "lastUpdatedDisplayName": "Alice Moreau",
+    "lastUpdatedUser": "5b10ac8d82e05b22cc7d4ef5",
+    "lastUpdated": 1646134512000,
+    "registrationMethod": "UI"
+  },
+  {
+    "name": "Old Slack bridge",
+    "description": "",
+    "url": "http://legacy-bridge.example.net/jira",
+    "excludeBody": false,
+    "filters": {},
+    "events": [
+      "jira:issue_created"
+    ],
+    "enabled": false,
+    "self": "https://example.atlassian.net/rest/webhooks/1.0/webhook/2",
+    "lastUpdatedDisplayName": "Dan Whitfield",
+    "lastUpdatedUser": "557058:aa11bb22-cc33-44dd-ee55-ff6677889900",
+    "lastUpdated": 1563201930000,
+    "registrationMethod": "UI"
+  },
+  {
+    "name": "Partner audit sink",
+    "description": "Required by the 2022 audit",
+    "url": "https://hooks.partner.example.org/in",
+    "excludeBody": true,
+    "filters": {},
+    "events": [
+      "jira:issue_created",
+      "jira:issue_updated",
+      "jira:issue_deleted"
+    ],
+    "enabled": true,
+    "self": "https://example.atlassian.net/rest/webhooks/1.0/webhook/3",
+    "lastUpdatedDisplayName": "Bob Okafor",
+    "lastUpdatedUser": "5b6a3c1f2d8e4a0b9c7f1e22",
+    "lastUpdated": 1655984400000,
+    "registrationMethod": "REST"
+  }
+]

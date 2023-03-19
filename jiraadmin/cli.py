@@ -2,7 +2,7 @@
 import argparse
 import sys
 
-from . import config, dashboards, fields, filters, groups, licenses, permissions, report, roles, users
+from . import config, dashboards, fields, filters, groups, licenses, permissions, report, roles, users, webhooks
 from .client import JiraClient, JiraError
 
 FORMATS = ("table", "csv", "json")
@@ -52,6 +52,7 @@ def build_parser():
     p_transfer.add_argument("--min-favourites", type=int, default=1,
                             help="favourites that make an unshared filter worth keeping (default 1)")
     p_transfer.add_argument("--apply", action="store_true", help="make the change (default is a dry run)")
+    sub.add_parser("webhooks", parents=[common], help="inventory of admin-registered webhooks")
     return parser
 
 
@@ -173,11 +174,16 @@ def cmd_transfer_filters(client, args, out):
     return 1 if any(r["status"] == "failed" for r in rows) else 0
 
 
+def cmd_webhooks(client, args, out):
+    rows = webhooks.inventory(client)
+    return emit(rows, ("id", "name", "host", "enabled", "events", "filter", "lastUpdatedBy", "lastUpdated"), args, out)
+
+
 HANDLERS = {"users": cmd_users, "inactive": cmd_inactive, "licenses": cmd_licenses,
             "group-members": cmd_group_members, "bulk-groups": cmd_bulk_groups, "roles": cmd_roles,
             "permissions": cmd_permissions, "fields": cmd_fields,
             "trash-fields": cmd_trash_fields, "filters": cmd_filters, "dashboards": cmd_dashboards,
-            "transfer-filters": cmd_transfer_filters}
+            "transfer-filters": cmd_transfer_filters, "webhooks": cmd_webhooks}
 
 
 def main(argv=None, client=None, out=None):
