@@ -25,6 +25,22 @@ class WebhookTests(unittest.TestCase):
         client, _ = make_client()
         self.assertNotIn("s3cr3t", str(webhooks.inventory(client)))
 
+    def test_findings(self):
+        client, _ = make_client()
+        rows = {r["name"]: r["findings"] for r in webhooks.inventory(client, internal_domains=("example.com",))}
+        self.assertEqual(rows["Deploy notifier"], ["secret-in-url"])
+        self.assertEqual(rows["Old Slack bridge"], ["disabled", "plain-http", "no-filter", "external"])
+        self.assertEqual(rows["Partner audit sink"], ["no-filter", "external"])
+
+    def test_without_internal_domains_nothing_is_external(self):
+        client, _ = make_client()
+        self.assertTrue(all("external" not in r["findings"] for r in webhooks.inventory(client)))
+
+    def test_subdomains_count_as_internal(self):
+        hook = {"url": "https://ci.build.example.com/x", "enabled": True, "filters": {"a": "b"}}
+        self.assertEqual(webhooks.findings(hook, ("example.com",)), [])
+        self.assertEqual(webhooks.findings(dict(hook, url="https://notexample.com/x"), ("example.com",)), ["external"])
+
     def test_no_webhooks(self):
         session = FakeSession().add("GET", r"/webhook$", [])
         self.assertEqual(webhooks.inventory(JiraClient("https://example.atlassian.net", session=session)), [])

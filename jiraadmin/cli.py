@@ -52,7 +52,9 @@ def build_parser():
     p_transfer.add_argument("--min-favourites", type=int, default=1,
                             help="favourites that make an unshared filter worth keeping (default 1)")
     p_transfer.add_argument("--apply", action="store_true", help="make the change (default is a dry run)")
-    sub.add_parser("webhooks", parents=[common], help="inventory of admin-registered webhooks")
+    p_hooks = sub.add_parser("webhooks", parents=[common], help="inventory of admin-registered webhooks")
+    p_hooks.add_argument("--internal-domain", action="append", default=[], metavar="DOMAIN",
+                         help="domain you control (repeatable); other receivers are flagged as external")
     return parser
 
 
@@ -175,8 +177,8 @@ def cmd_transfer_filters(client, args, out):
 
 
 def cmd_webhooks(client, args, out):
-    rows = webhooks.inventory(client)
-    return emit(rows, ("id", "name", "host", "enabled", "events", "filter", "lastUpdatedBy", "lastUpdated"), args, out)
+    rows = webhooks.inventory(client, tuple(args.internal_domain))
+    return emit(rows, ("id", "name", "host", "enabled", "events", "filter", "lastUpdatedBy", "lastUpdated", "findings"), args, out)
 
 
 HANDLERS = {"users": cmd_users, "inactive": cmd_inactive, "licenses": cmd_licenses,
