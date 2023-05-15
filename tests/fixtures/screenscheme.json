@@ -1,0 +1,85 @@
+{
+  "maxResults": 100,
+  "startAt": 0,
+  "total": 4,
+  "isLast": true,
+  "values": [
+    {
+      "id": 1,
+      "name": "Default Screen Scheme",
+      "description": "",
+      "screens": {
+        "default": 1
+      },
+      "issueTypeScreenSchemes": {
+        "maxResults": 100,
+        "startAt": 0,
+        "total": 1,
+        "isLast": true,
+        "values": [
+          {
+            "id": "1",
+            "name": "Default Issue Type Screen Scheme"
+          }
+        ]
+      }
+    },
+    {
+      "id": 10000,
+      "name": "PLAT Screen Scheme",
+      "description": "",
+      "screens": {
+        "default": 10,
+        "edit": 11,
+        "view": 10
+      },
+      "issueTypeScreenSchemes": {
+        "maxResults": 100,
+        "startAt": 0,
+        "total": 1,
+        "isLast": true,
+        "values": [
+          {
+            "id": "10000",
+            "name": "PLAT Issue Type Screen Scheme"
+          }
+        ]
+      }
+    },
+    {
+      "id": 10001,
+      "name": "OPS Screen Scheme",
+      "description": "",
+      "screens": {
+        "default": 13
+      },
+      "issueTypeScreenSchemes": {
+        "maxResults": 100,
+        "startAt": 0,
+        "total": 1,
+        "isLast": true,
+        "values": [
+          {
+            "id": "10001",
+            "name": "OPS Issue Type Screen Scheme"
+          }
+        ]
+      }
+    },
+    {
+      "id": 10002,
+      "name": "Hotfix Screen Scheme",
+      "description": "",
+      "screens": {
+        "default": 12
+      },
+      "issueTypeScreenSchemes": {
+        "maxResults": 100,
+        "startAt": 0,
+        "total": 0,
+        "isLast": true,
+        "values": []
+      }
+    }
+  ]
+}

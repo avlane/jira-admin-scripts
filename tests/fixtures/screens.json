@@ -1,0 +1,44 @@
+{
+  "self": "https://example.atlassian.net/rest/api/3/screens?maxResults=100&startAt=0",
+  "maxResults": 100,
+  "startAt": 0,
+  "total": 7,
+  "isLast": true,
+  "values": [
+    {
+      "id": 1,
+      "name": "Default Screen",
+      "description": "Allows to update all system fields."
+    },
+    {
+      "id": 2,
+      "name": "Workflow Screen",
+      "description": "This screen is used in the workflow and enables you to assign issues"
+    },
+    {
+      "id": 3,
+      "name": "Resolve Issue Screen",
+      "description": "Allows to set resolution, change fix versions and assign an issue."
+    },
+    {
+      "id": 10,
+      "name": "PLAT: Bug Screen",
+      "description": ""
+    },
+    {
+      "id": 11,
+      "name": "PLAT: Bug Edit Screen",
+      "description": ""
+    },
+    {
+      "id": 12,
+      "name": "Old Hotfix Screen",
+      "description": "Created for the 2019 hotfix process"
+    },
+    {
+      "id": 13,
+      "name": "OPS: Request Screen",
+      "description": ""
+    }
+  ]
+}

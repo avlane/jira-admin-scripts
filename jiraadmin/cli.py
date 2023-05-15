@@ -2,7 +2,7 @@
 import argparse
 import sys
 
-from . import config, dashboards, fields, filters, groups, licenses, permissions, report, roles, users, webhooks
+from . import config, dashboards, fields, filters, groups, licenses, permissions, report, roles, screens, users, webhooks
 from .client import JiraClient, JiraError
 
 FORMATS = ("table", "csv", "json")
@@ -55,6 +55,7 @@ def build_parser():
     p_hooks = sub.add_parser("webhooks", parents=[common], help="inventory of admin-registered webhooks")
     p_hooks.add_argument("--internal-domain", action="append", default=[], metavar="DOMAIN",
                          help="domain you control (repeatable); other receivers are flagged as external")
+    sub.add_parser("screens", parents=[common], help="screens that no screen scheme uses")
     return parser
 
 
@@ -181,11 +182,17 @@ def cmd_webhooks(client, args, out):
     return emit(rows, ("id", "name", "host", "enabled", "events", "filter", "lastUpdatedBy", "lastUpdated", "findings"), args, out)
 
 
+def cmd_screens(client, args, out):
+    rows = screens.unused_screens(screens.list_screens(client), screens.screen_schemes(client))
+    return emit(rows, ("id", "name", "description", "note"), args, out)
+
+
 HANDLERS = {"users": cmd_users, "inactive": cmd_inactive, "licenses": cmd_licenses,
             "group-members": cmd_group_members, "bulk-groups": cmd_bulk_groups, "roles": cmd_roles,
             "permissions": cmd_permissions, "fields": cmd_fields,
             "trash-fields": cmd_trash_fields, "filters": cmd_filters, "dashboards": cmd_dashboards,
-            "transfer-filters": cmd_transfer_filters, "webhooks": cmd_webhooks}
+            "transfer-filters": cmd_transfer_filters, "webhooks": cmd_webhooks,
+            "screens": cmd_screens}
 
 
 def main(argv=None, client=None, out=None):
