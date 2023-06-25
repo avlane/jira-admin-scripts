@@ -25,7 +25,13 @@ class ScreenTests(unittest.TestCase):
     def test_unused_screens(self):
         client, _ = make_client()
         rows = screens.unused_screens(screens.list_screens(client), screens.screen_schemes(client))
-        self.assertEqual([r["id"] for r in rows], [2, 3])
+        self.assertEqual([r["id"] for r in rows], [2, 3, 12])
+        self.assertTrue(rows[2]["note"].startswith("only in a screen scheme nothing uses"))
+        self.assertTrue(rows[0]["note"].startswith("in no screen scheme;"))
+
+    def test_unused_screen_schemes(self):
+        client, _ = make_client()
+        self.assertEqual([s["name"] for s in screens.unused_screen_schemes(screens.screen_schemes(client))], ["Hotfix Screen Scheme"])
 
 
 if __name__ == "__main__":
