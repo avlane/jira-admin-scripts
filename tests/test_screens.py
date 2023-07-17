@@ -34,5 +34,31 @@ class ScreenTests(unittest.TestCase):
         self.assertEqual([s["name"] for s in screens.unused_screen_schemes(screens.screen_schemes(client))], ["Hotfix Screen Scheme"])
 
 
+class IssueTypeSchemeTests(unittest.TestCase):
+    def setUp(self):
+        self.client, self.session = make_client()
+        self.session.add("GET", r"/project/search$", load("project_search.json"))
+        self.session.add("GET", r"/issuetypescreenscheme$", load("issuetypescreenscheme.json"))
+        self.session.add("GET", r"/issuetypescreenscheme/mapping$", load("issuetypescreenscheme_mapping.json"))
+        self.session.add("GET", r"/issuetypescreenscheme/project$", load("issuetypescreenscheme_project.json"))
+
+    def test_report(self):
+        rows = screens.issue_type_scheme_report(self.client)
+        self.assertEqual([(r["id"], r["projects"], r["screenSchemes"]) for r in rows], [
+            ("1", [], ["Default Screen Scheme"]), ("10000", ["PLAT"], ["PLAT Screen Scheme"]),
+            ("10001", ["OPS"], ["OPS Screen Scheme"])])
+        self.assertFalse(any(r["unused"] for r in rows))
+
+    def test_project_ids_are_sent_as_a_repeated_parameter(self):
+        screens.issue_type_scheme_report(self.client)
+        call = self.session.calls_to("GET", "/issuetypescreenscheme/project")[0]
+        self.assertEqual(call["params"]["projectId"], ["10000", "10001"])
+
+    def test_batches_of_fifty(self):
+        screens.project_associations(self.client, [str(n) for n in range(120)])
+        calls = self.session.calls_to("GET", "/issuetypescreenscheme/project")
+        self.assertEqual([len(c["params"]["projectId"]) for c in calls], [50, 50, 20])
+
+
 if __name__ == "__main__":
     unittest.main()

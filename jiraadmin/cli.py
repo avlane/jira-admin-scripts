@@ -55,7 +55,8 @@ def build_parser():
     p_hooks = sub.add_parser("webhooks", parents=[common], help="inventory of admin-registered webhooks")
     p_hooks.add_argument("--internal-domain", action="append", default=[], metavar="DOMAIN",
                          help="domain you control (repeatable); other receivers are flagged as external")
-    sub.add_parser("screens", parents=[common], help="screens that no screen scheme uses")
+    p_screens = sub.add_parser("screens", parents=[common], help="screens that no screen scheme uses")
+    p_screens.add_argument("--schemes", action="store_true", help="report issue type screen schemes and their projects instead")
     return parser
 
 
@@ -183,6 +184,9 @@ def cmd_webhooks(client, args, out):
 
 
 def cmd_screens(client, args, out):
+    if args.schemes:
+        rows = screens.issue_type_scheme_report(client)
+        return emit(rows, ("id", "name", "projects", "screenSchemes", "unused"), args, out)
     rows = screens.unused_screens(screens.list_screens(client), screens.screen_schemes(client))
     return emit(rows, ("id", "name", "description", "note"), args, out)
 

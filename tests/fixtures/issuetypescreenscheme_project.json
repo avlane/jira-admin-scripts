@@ -1,0 +1,26 @@
+{
+  "maxResults": 100,
+  "startAt": 0,
+  "total": 2,
+  "isLast": true,
+  "values": [
+    {
+      "issueTypeScreenScheme": {
+        "id": "10000",
+        "name": "PLAT Issue Type Screen Scheme"
+      },
+      "projectIds": [
+        "10000"
+      ]
+    },
+    {
+      "issueTypeScreenScheme": {
+        "id": "10001",
+        "name": "OPS Issue Type Screen Scheme"
+      },
+      "projectIds": [
+        "10001"
+      ]
+    }
+  ]
+}

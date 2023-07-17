@@ -1,0 +1,23 @@
+{
+  "maxResults": 100,
+  "startAt": 0,
+  "total": 3,
+  "isLast": true,
+  "values": [
+    {
+      "id": "1",
+      "name": "Default Issue Type Screen Scheme",
+      "description": "The default issue type screen scheme"
+    },
+    {
+      "id": "10000",
+      "name": "PLAT Issue Type Screen Scheme",
+      "description": ""
+    },
+    {
+      "id": "10001",
+      "name": "OPS Issue Type Screen Scheme",
+      "description": ""
+    }
+  ]
+}
