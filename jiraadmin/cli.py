@@ -1,5 +1,6 @@
 """Command line entry point: python -m jiraadmin <command>."""
 import argparse
+import logging
 import sys
 
 from . import (config, dashboards, fields, filters, groups, licenses, permissions, report, roles,
@@ -29,6 +30,8 @@ def _findings_only(parser):
 def build_parser():
     common = argparse.ArgumentParser(add_help=False)
     common.add_argument("--format", choices=FORMATS, default="table", help="output format (default table)")
+    common.add_argument("-v", "--verbose", action="count", default=0,
+                        help="log requests and rate-limit waits to stderr (-vv for debug)")
     parser = argparse.ArgumentParser(
         prog="jiraadmin",
         description="Jira Cloud admin helpers. Read-only unless a command says otherwise.")
@@ -253,9 +256,15 @@ def cmd_screens(client, args, out):
     return emit(rows, ("id", "name", "description", "note"), args, out)
 
 
+def setup_logging(verbosity):
+    level = logging.WARNING if verbosity == 0 else logging.INFO if verbosity == 1 else logging.DEBUG
+    logging.basicConfig(level=level, format="%(levelname)s %(name)s: %(message)s", stream=sys.stderr)
+
+
 def main(argv=None, client=None, out=None):
     out = out if out is not None else sys.stdout
     args = build_parser().parse_args(argv)
+    setup_logging(args.verbose)
     try:
         client = client or make_client()
         return COMMANDS[args.command]["run"](client, args, out)

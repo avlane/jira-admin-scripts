@@ -24,7 +24,7 @@ This installs a `jiraadmin` command; `python -m jiraadmin` works from a checkout
     python -m jiraadmin filters --findings-only
     python -m jiraadmin dashboards --findings-only
 
-Every command takes `--format table|csv|json`.
+Every command takes `--format table|csv|json`, and `-v` shows requests and rate-limit waits on stderr.
 
 ## Bulk group membership
 

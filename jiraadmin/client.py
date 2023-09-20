@@ -1,4 +1,5 @@
 """Minimal Jira Cloud REST client (basic auth with an API token)."""
+import logging
 import time
 from typing import Any, Iterator, Optional
 
@@ -8,6 +9,9 @@ class JiraError(Exception):
         super().__init__(message)
         self.status = status
         self.url = url
+
+
+log = logging.getLogger("jiraadmin.client")
 
 
 def default_session(email, token):
@@ -48,10 +52,13 @@ class JiraClient:
         url = self.url(path)
         attempt = 0
         while True:
+            log.debug("%s %s", method, url)
             resp = self.session.request(method, url, params=params, json=body, timeout=self.timeout)
             if resp.status_code == 429 and attempt < self.max_retries:
                 attempt += 1
-                self.sleep(retry_after(resp))
+                delay = retry_after(resp)
+                log.warning("rate limited on %s %s; waiting %ss (retry %d of %d)", method, url, delay, attempt, self.max_retries)
+                self.sleep(delay)
                 continue
             break
         if resp.status_code not in expected:

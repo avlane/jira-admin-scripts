@@ -42,6 +42,14 @@ class RateLimitTests(unittest.TestCase):
         self.assertEqual(sleeps, [7, 7])
         self.assertEqual(len(session.calls), 3)
 
+    def test_waits_are_logged(self):
+        limited = FakeResponse(429, None, {"Retry-After": "3"})
+        session = FakeSession().add("GET", r"/myself$", Seq(limited, {"ok": True}))
+        client = JiraClient("https://example.atlassian.net", session=session, sleep=lambda s: None)
+        with self.assertLogs("jiraadmin.client", level="WARNING") as captured:
+            client.get("myself")
+        self.assertIn("waiting 3s (retry 1 of 5)", captured.output[0])
+
     def test_missing_header_uses_default_delay(self):
         session = FakeSession().add("GET", r"/myself$", Seq(FakeResponse(429), {"ok": True}))
         sleeps = []
