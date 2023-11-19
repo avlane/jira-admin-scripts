@@ -13,6 +13,11 @@ class JiraError(Exception):
 
 log = logging.getLogger("jiraadmin.client")
 
+# Gateway errors Atlassian returns during short outages. Only requests that are
+# safe to repeat are retried; a POST that timed out may already have happened.
+TRANSIENT = (502, 503, 504)
+IDEMPOTENT = ("GET", "PUT", "DELETE")
+
 
 def default_session(email, token):
     import requests  # imported lazily so the tests run without it installed
@@ -58,6 +63,12 @@ class JiraClient:
                 attempt += 1
                 delay = retry_after(resp)
                 log.warning("rate limited on %s %s; waiting %ss (retry %d of %d)", method, url, delay, attempt, self.max_retries)
+                self.sleep(delay)
+                continue
+            if resp.status_code in TRANSIENT and method.upper() in IDEMPOTENT and attempt < self.max_retries:
+                attempt += 1
+                delay = min(2 ** attempt, 30)
+                log.warning("HTTP %s on %s %s; retrying in %ss (retry %d of %d)", resp.status_code, method, url, delay, attempt, self.max_retries)
                 self.sleep(delay)
                 continue
             break

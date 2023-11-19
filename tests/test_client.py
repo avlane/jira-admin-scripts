@@ -32,6 +32,30 @@ class ClientTests(unittest.TestCase):
         self.assertIsNone(make(session).request("GET", "ping", expected=(204,)))
 
 
+class TransientErrorTests(unittest.TestCase):
+    def test_gateway_errors_are_retried_with_backoff(self):
+        session = FakeSession().add("GET", r"/myself$", Seq(FakeResponse(503), FakeResponse(502), {"ok": True}))
+        sleeps = []
+        client = JiraClient("https://example.atlassian.net", session=session, sleep=sleeps.append)
+        self.assertEqual(client.get("myself"), {"ok": True})
+        self.assertEqual(sleeps, [2, 4])
+
+    def test_posts_are_not_repeated(self):
+        session = FakeSession().add("POST", r"/group/user$", FakeResponse(503, "unavailable"))
+        client = JiraClient("https://example.atlassian.net", session=session, sleep=lambda s: None)
+        with self.assertRaises(JiraError) as ctx:
+            client.request("POST", "group/user", body={"accountId": "x"}, expected=(201,))
+        self.assertEqual(ctx.exception.status, 503)
+        self.assertEqual(len(session.calls), 1)
+
+    def test_persistent_outage_gives_up(self):
+        session = FakeSession().add("GET", r"/myself$", FakeResponse(504, "gateway timeout"))
+        client = JiraClient("https://example.atlassian.net", session=session, max_retries=3, sleep=lambda s: None)
+        with self.assertRaises(JiraError):
+            client.get("myself")
+        self.assertEqual(len(session.calls), 4)
+
+
 class RateLimitTests(unittest.TestCase):
     def test_retries_after_the_advertised_delay(self):
         limited = FakeResponse(429, {"message": "Rate limit exceeded"}, {"Retry-After": "7"})
