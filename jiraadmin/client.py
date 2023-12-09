@@ -1,6 +1,9 @@
 """Minimal Jira Cloud REST client (basic auth with an API token)."""
 import logging
+import math
 import time
+from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 from typing import Any, Iterator, Optional
 
 
@@ -28,13 +31,24 @@ def default_session(email, token):
     return session
 
 
-def retry_after(resp, default: int = 5) -> int:
-    """Seconds to wait before retrying a 429, from the Retry-After header."""
+def retry_after(resp, default: int = 5, now: Optional[datetime] = None) -> int:
+    """Seconds to wait before retrying a 429, from the Retry-After header.
+
+    The header is either a number of seconds or an HTTP date.
+    """
     value = resp.headers.get("Retry-After")
     try:
         return max(0, int(value))
     except (TypeError, ValueError):
+        pass
+    try:
+        when = parsedate_to_datetime(value)
+    except (TypeError, ValueError):
         return default
+    if when.tzinfo is None:
+        when = when.replace(tzinfo=timezone.utc)
+    now = now or datetime.now(timezone.utc)
+    return max(0, math.ceil((when - now).total_seconds()))
 
 
 class JiraClient:

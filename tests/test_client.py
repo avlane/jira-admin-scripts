@@ -66,6 +66,17 @@ class RateLimitTests(unittest.TestCase):
         self.assertEqual(sleeps, [7, 7])
         self.assertEqual(len(session.calls), 3)
 
+    def test_http_date_retry_after(self):
+        from datetime import datetime, timezone
+        from jiraadmin.client import retry_after
+        now = datetime(2023, 12, 10, 12, 0, 0, tzinfo=timezone.utc)
+        resp = FakeResponse(429, None, {"Retry-After": "Sun, 10 Dec 2023 12:00:42 GMT"})
+        self.assertEqual(retry_after(resp, now=now), 42)
+        past = FakeResponse(429, None, {"Retry-After": "Sun, 10 Dec 2023 11:00:00 GMT"})
+        self.assertEqual(retry_after(past, now=now), 0)
+        junk = FakeResponse(429, None, {"Retry-After": "soon"})
+        self.assertEqual(retry_after(junk, now=now), 5)
+
     def test_waits_are_logged(self):
         limited = FakeResponse(429, None, {"Retry-After": "3"})
         session = FakeSession().add("GET", r"/myself$", Seq(limited, {"ok": True}))
