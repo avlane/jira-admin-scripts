@@ -4,7 +4,7 @@ import logging
 import sys
 
 from . import (config, dashboards, fields, filters, groups, licenses, permissions, report, roles,
-               screens, users, webhooks)
+               screens, users, webhooks, workflowschemes)
 from .client import JiraClient, JiraError
 
 FORMATS = ("table", "csv", "json")
@@ -259,6 +259,12 @@ def cmd_screens(client, args, out):
 def setup_logging(verbosity):
     level = logging.WARNING if verbosity == 0 else logging.INFO if verbosity == 1 else logging.DEBUG
     logging.basicConfig(level=level, format="%(levelname)s %(name)s: %(message)s", stream=sys.stderr)
+
+
+@command("workflow-schemes", "workflow schemes and the projects that use them")
+def cmd_workflow_schemes(client, args, out):
+    rows = workflowschemes.report(client)
+    return emit(rows, ("id", "name", "defaultWorkflow", "workflows", "projects", "unused"), args, out)
 
 
 def main(argv=None, client=None, out=None):

@@ -1,0 +1,40 @@
+{
+  "maxResults": 50,
+  "startAt": 0,
+  "total": 2,
+  "isLast": true,
+  "values": [
+    {
+      "projectIds": [
+        "10000"
+      ],
+      "workflowScheme": {
+        "id": 10000,
+        "name": "PLAT Workflow Scheme",
+        "description": "",
+        "defaultWorkflow": "PLAT Workflow",
+        "issueTypeMappings": {
+          "10002": "PLAT Bug Workflow"
+        },
+        "draft": false,
+        "updateDraftIfNeeded": false,
+        "self": "https://example.atlassian.net/rest/api/3/workflowscheme/10000"
+      }
+    },
+    {
+      "projectIds": [
+        "10001"
+      ],
+      "workflowScheme": {
+        "id": 10001,
+        "name": "OPS Workflow Scheme",
+        "description": "",
+        "defaultWorkflow": "OPS Request Workflow",
+        "issueTypeMappings": {},
+        "draft": false,
+        "updateDraftIfNeeded": false,
+        "self": "https://example.atlassian.net/rest/api/3/workflowscheme/10001"
+      }
+    }
+  ]
+}
