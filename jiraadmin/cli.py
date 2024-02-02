@@ -7,7 +7,7 @@ from . import (config, dashboards, fields, filters, groups, licenses, permission
                screens, users, webhooks, workflowschemes)
 from .client import JiraClient, JiraError
 
-FORMATS = ("table", "csv", "json")
+FORMATS = ("table", "csv", "json", "markdown")
 COMMANDS = {}
 
 

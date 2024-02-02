@@ -14,9 +14,22 @@ def _cell(value) -> str:
     return str(value)
 
 
+def _markdown(rows, columns):
+    """A GitHub-flavoured table, ready to paste into a Jira comment or a pull request."""
+    def escape(text):
+        return text.replace("|", "\\|")
+
+    lines = ["| " + " | ".join(columns) + " |", "| " + " | ".join("---" for _ in columns) + " |"]
+    for row in rows:
+        lines.append("| " + " | ".join(escape(_cell(row.get(col))) for col in columns) + " |")
+    return "\n".join(lines) + "\n"
+
+
 def render(rows: list[dict], columns: tuple[str, ...], fmt: str = "table") -> str:
     if fmt == "json":
         return json.dumps(rows, indent=2) + "\n"
+    if fmt == "markdown":
+        return _markdown(rows, columns)
     cells = [[_cell(row.get(col)) for col in columns] for row in rows]
     if fmt == "csv":
         buf = io.StringIO()
