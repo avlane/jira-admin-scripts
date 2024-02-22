@@ -25,6 +25,17 @@ class ReportTests(unittest.TestCase):
     def test_json_keeps_full_rows(self):
         self.assertEqual(json.loads(report.render(ROWS, COLS, "json")), ROWS)
 
+    def test_line_breaks_do_not_split_table_rows(self):
+        rows = [{"name": "Default Screen", "description": "Allows to update\nall   system fields.\r\n"}]
+        lines = report.render(rows, ("name", "description")).splitlines()
+        self.assertEqual(len(lines), 3)
+        self.assertEqual(lines[2], "Default Screen  Allows to update all system fields.")
+
+    def test_csv_keeps_line_breaks(self):
+        rows = [{"description": "one\ntwo"}]
+        parsed = list(csv.reader(io.StringIO(report.render(rows, ("description",), "csv"))))
+        self.assertEqual(parsed[1], ["one\ntwo"])
+
     def test_markdown(self):
         lines = report.render(ROWS, COLS, "markdown").splitlines()
         self.assertEqual(lines[0], "| name | n | ok | tags |")

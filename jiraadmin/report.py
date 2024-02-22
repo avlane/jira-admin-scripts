@@ -4,14 +4,17 @@ import io
 import json
 
 
-def _cell(value) -> str:
+def _cell(value, flat: bool = False) -> str:
     if value is None:
         return ""
     if isinstance(value, bool):
         return "yes" if value else "no"
     if isinstance(value, (list, tuple, set)):
-        return ", ".join(str(v) for v in value)
-    return str(value)
+        text = ", ".join(str(v) for v in value)
+    else:
+        text = str(value)
+    # Descriptions often contain line breaks, which would tear a text table apart.
+    return " ".join(text.split()) if flat else text
 
 
 def _markdown(rows, columns):
@@ -21,7 +24,7 @@ def _markdown(rows, columns):
 
     lines = ["| " + " | ".join(columns) + " |", "| " + " | ".join("---" for _ in columns) + " |"]
     for row in rows:
-        lines.append("| " + " | ".join(escape(_cell(row.get(col))) for col in columns) + " |")
+        lines.append("| " + " | ".join(escape(_cell(row.get(col), flat=True)) for col in columns) + " |")
     return "\n".join(lines) + "\n"
 
 
@@ -30,15 +33,15 @@ def render(rows: list[dict], columns: tuple[str, ...], fmt: str = "table") -> st
         return json.dumps(rows, indent=2) + "\n"
     if fmt == "markdown":
         return _markdown(rows, columns)
-    cells = [[_cell(row.get(col)) for col in columns] for row in rows]
     if fmt == "csv":
         buf = io.StringIO()
         writer = csv.writer(buf, lineterminator="\n")
         writer.writerow(columns)
-        writer.writerows(cells)
+        writer.writerows([_cell(row.get(col)) for col in columns] for row in rows)
         return buf.getvalue()
     if fmt != "table":
         raise ValueError("unknown format {!r}".format(fmt))
+    cells = [[_cell(row.get(col), flat=True) for col in columns] for row in rows]
     if not rows:
         return "(no rows)\n"
     widths = [max([len(col)] + [len(line[i]) for line in cells]) for i, col in enumerate(columns)]
