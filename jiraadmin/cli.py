@@ -132,11 +132,12 @@ def cmd_bulk_groups(client, args, out):
 def _roles_args(p):
     p.add_argument("--project", action="append", help="project key (repeatable); default is all classic projects")
     p.add_argument("--findings-only", action="store_true", help="hide rows without a finding")
+    p.add_argument("--check-users", action="store_true", help="look up individual users and flag deactivated ones")
 
 
 @command("roles", "who holds each project role", _roles_args)
 def cmd_roles(client, args, out):
-    rows = roles.audit(client, projects=args.project)
+    rows = roles.audit(client, projects=args.project, check_users=args.check_users)
     if args.findings_only:
         rows = [r for r in rows if r["finding"]]
     return emit(rows, ("project", "role", "actorType", "actor", "finding"), args, out)

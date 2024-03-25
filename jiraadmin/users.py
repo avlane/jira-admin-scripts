@@ -52,3 +52,15 @@ def require_assignable(client, account_id):
     if user.get("accountType") != "atlassian" or not user.get("active"):
         raise JiraError("account {} is not an active user account".format(account_id))
     return user
+
+
+def lookup_accounts(client, account_ids):
+    """Fetch accounts in batches with user/bulk. Unknown ids are simply absent from the result."""
+    found = {}
+    ids = list(dict.fromkeys(account_ids))
+    for start in range(0, len(ids), 50):
+        batch = ids[start:start + 50]
+        data = client.get("user/bulk", params={"accountId": batch, "maxResults": len(batch)})
+        for user in data.get("values", []):
+            found[user["accountId"]] = user
+    return found

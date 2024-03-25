@@ -1,0 +1,59 @@
+{
+  "maxResults": 50,
+  "startAt": 0,
+  "total": 4,
+  "isLast": true,
+  "values": [
+    {
+      "self": "https://example.atlassian.net/rest/api/3/user?accountId=5b10ac8d82e05b22cc7d4ef5",
+      "accountId": "5b10ac8d82e05b22cc7d4ef5",
+      "accountType": "atlassian",
+      "emailAddress": "alice.moreau@example.com",
+      "avatarUrls": {
+        "48x48": "https://secure.gravatar.com/avatar/0.png"
+      },
+      "displayName": "Alice Moreau",
+      "active": true,
+      "timeZone": "Europe/Dublin",
+      "locale": "en_GB"
+    },
+    {
+      "self": "https://example.atlassian.net/rest/api/3/user?accountId=5b6a3c1f2d8e4a0b9c7f1e22",
+      "accountId": "5b6a3c1f2d8e4a0b9c7f1e22",
+      "accountType": "atlassian",
+      "emailAddress": "bob.okafor@example.com",
+      "avatarUrls": {
+        "48x48": "https://secure.gravatar.com/avatar/0.png"
+      },
+      "displayName": "Bob Okafor",
+      "active": true,
+      "timeZone": "Europe/Dublin",
+      "locale": "en_GB"
+    },
+    {
+      "self": "https://example.atlassian.net/rest/api/3/user?accountId=557058:aa11bb22-cc33-44dd-ee55-ff6677889900",
+      "accountId": "557058:aa11bb22-cc33-44dd-ee55-ff6677889900",
+      "accountType": "atlassian",
+      "emailAddress": "dan.whitfield@example.com",
+      "avatarUrls": {
+        "48x48": "https://secure.gravatar.com/avatar/0.png"
+      },
+      "displayName": "Dan Whitfield",
+      "active": false,
+      "timeZone": "Europe/Dublin",
+      "locale": "en_GB"
+    },
+    {
+      "self": "https://example.atlassian.net/rest/api/3/user?accountId=5d53f3cbc6b9320d9ea5bdc2",
+      "accountId": "5d53f3cbc6b9320d9ea5bdc2",
+      "accountType": "atlassian",
+      "avatarUrls": {
+        "48x48": "https://secure.gravatar.com/avatar/0.png"
+      },
+      "displayName": "Erin Castellano",
+      "active": true,
+      "timeZone": "Europe/Dublin",
+      "locale": "en_GB"
+    }
+  ]
+}
