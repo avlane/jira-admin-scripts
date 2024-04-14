@@ -24,7 +24,7 @@ def _actor_row(project, role_name, actor):
             "actorId": group.get("groupId", ""), "finding": ""}
 
 
-def audit(client, projects=None, check_users=False):
+def audit(client, projects=None, check_users=False, directory=None):
     """One row per role actor, plus a row for each role nobody holds.
 
     `projects` is a list of project keys; by default every classic project is checked.
@@ -44,10 +44,11 @@ def audit(client, projects=None, check_users=False):
             for actor in actors:
                 rows.append(_actor_row(key, role_name, actor))
     if check_users:
-        from .users import lookup_accounts
+        from .users import UserDirectory
 
-        known = lookup_accounts(client, [r["actorId"] for r in rows if r["actorType"] == "user"])
+        directory = directory or UserDirectory(client)
+        directory.prefetch(r["actorId"] for r in rows if r["actorType"] == "user")
         for row in rows:
-            if row["actorType"] == "user" and not known.get(row["actorId"], {}).get("active"):
+            if row["actorType"] == "user" and not directory.is_active(row["actorId"]):
                 row["finding"] = "inactive-user"
     return rows

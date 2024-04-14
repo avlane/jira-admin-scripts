@@ -69,3 +69,29 @@ class AssignableTests(unittest.TestCase):
             client, _ = self.client(load("users_search.json")[index])
             with self.assertRaises(JiraError):
                 users.require_assignable(client, "x")
+
+
+class DirectoryTests(unittest.TestCase):
+    def setUp(self):
+        self.session = FakeSession().add("GET", r"/user/bulk$", load("user_bulk.json"))
+        self.directory = users.UserDirectory(JiraClient("https://example.atlassian.net", session=self.session))
+
+    def test_answers_are_cached(self):
+        self.assertTrue(self.directory.is_active("5b10ac8d82e05b22cc7d4ef5"))
+        self.assertFalse(self.directory.is_active("557058:aa11bb22-cc33-44dd-ee55-ff6677889900"))
+        self.assertEqual(len(self.session.calls), 2)
+        self.directory.get("5b10ac8d82e05b22cc7d4ef5")
+        self.assertEqual(len(self.session.calls), 2)
+
+    def test_prefetch_batches_and_deduplicates(self):
+        ids = ["id%d" % n for n in range(120)] + ["id1", "id2"]
+        self.directory.prefetch(ids)
+        sizes = [len(c["params"]["accountId"]) for c in self.session.calls]
+        self.assertEqual(sizes, [50, 50, 20])
+        self.directory.prefetch(ids)
+        self.assertEqual(len(self.session.calls), 3)
+
+    def test_unknown_accounts_are_not_active_and_asked_once(self):
+        self.assertIsNone(self.directory.get("nobody"))
+        self.assertFalse(self.directory.is_active("nobody"))
+        self.assertEqual(len(self.session.calls), 1)
