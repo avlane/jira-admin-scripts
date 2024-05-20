@@ -123,7 +123,7 @@ def _bulk_args(p):
 def cmd_bulk_groups(client, args, out):
     with open(args.csv_file, newline="", encoding="utf-8") as handle:
         steps = groups.read_plan(handle)
-    results = groups.run_plan(client, steps, apply=args.apply)
+    results = groups.run_plan(client, steps, apply=args.apply, directory=users.UserDirectory(client))
     dry_run_notice(args, out)
     emit(results, ("action", "group", "accountId", "status", "detail"), args, out)
     return failed(results)

@@ -88,6 +88,17 @@ class PlanTests(unittest.TestCase):
         delete = self.session.calls_to("DELETE", "/group/user")[0]
         self.assertEqual(delete["params"], {"groupname": "jira-administrators", "accountId": "5b6a3c1f2d8e4a0b9c7f1e22"})
 
+    def test_unknown_and_deactivated_accounts_are_not_added(self):
+        from jiraadmin.users import UserDirectory
+        self.session.add("GET", r"/user/bulk$", load("user_bulk.json"))
+        client = make(self.session)
+        csv_text = ("action,group,accountId\nadd,devs,5d53f3cbc6b9320d9ea5bdc2\n"
+                    "add,devs,557058:aa11bb22-cc33-44dd-ee55-ff6677889900\nadd,devs,GHOST\n")
+        results = groups.run_plan(client, groups.read_plan(io.StringIO(csv_text)), apply=True, directory=UserDirectory(client))
+        self.assertEqual([r["status"] for r in results], ["added", "failed", "failed"])
+        self.assertEqual(len(self.session.calls_to("POST", "/group/user")), 1)
+        self.assertEqual(len(self.session.calls_to("GET", "/user/bulk")), 1)
+
     def test_failure_is_reported_not_raised(self):
         self.session.routes = [r for r in self.session.routes if r[0] != "POST"]
         self.session.add("POST", r"/group/user$", FakeResponse(400, {"errorMessages": ["user does not exist"]}))

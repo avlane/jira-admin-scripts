@@ -43,9 +43,16 @@ def _result(step, status, detail=""):
     return dict(step, status=status, detail=detail)
 
 
-def run_plan(client, steps, apply=False):
-    """Execute (or, by default, just describe) the steps. Returns one result per step."""
+def run_plan(client, steps, apply=False, directory=None):
+    """Execute (or, by default, just describe) the steps. Returns one result per step.
+
+    When a UserDirectory is given, accounts to be added are checked first and
+    unknown or deactivated ones fail without a request being made.
+    """
     from .client import JiraError
+
+    if directory is not None:
+        directory.prefetch(s["accountId"] for s in steps if s["action"] == "add")
 
     current = {}
     results = []
@@ -54,6 +61,9 @@ def run_plan(client, steps, apply=False):
         if group not in current:
             current[group] = {m["accountId"] for m in members(client, group, include_inactive=True)}
         adding = step["action"] == "add"
+        if adding and directory is not None and not directory.is_active(account_id):
+            results.append(_result(step, "failed", "unknown or deactivated account"))
+            continue
         is_member = account_id in current[group]
         if adding == is_member:
             results.append(_result(step, "skipped", "already a member" if adding else "not a member"))

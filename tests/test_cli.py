@@ -76,6 +76,21 @@ class CliTests(unittest.TestCase):
         self.assertEqual(text.count("left"), 1)
         self.assertEqual(self.session.calls_to("PUT", "/owner"), [])
 
+    def test_bulk_groups_checks_accounts_before_adding(self):
+        import os
+        import tempfile
+        from tests.helpers import load
+        self.session.add("GET", r"/group/member$", {"values": [], "isLast": True, "total": 0})
+        self.session.add("GET", r"/user/bulk$", load("user_bulk.json"))
+        self.session.add("POST", r"/group/user$", {"name": "devs"})
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "plan.csv")
+            with open(path, "w", encoding="utf-8") as handle:
+                handle.write("action,group,accountId\nadd,devs,5b6a3c1f2d8e4a0b9c7f1e22\nadd,devs,GHOST\n")
+            code, text = run(["bulk-groups", path, "--apply", "--format", "csv"], self.session)
+        self.assertEqual(code, 1)
+        self.assertIn("unknown or deactivated account", text)
+
     def test_group_members(self):
         from tests.helpers import load
         self.session.add("GET", r"/group/member$", load("group_member.json"))
