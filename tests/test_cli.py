@@ -1,4 +1,6 @@
+import contextlib
 import io
+import json
 import unittest
 
 from jiraadmin import cli
@@ -47,9 +49,11 @@ class CliTests(unittest.TestCase):
     def test_trash_fields_dry_run(self):
         from tests.helpers import load
         self.session.add("GET", r"/field/search$", load("field_search.json"))
-        code, text = run(["trash-fields", "--format", "csv"], self.session)
+        with contextlib.redirect_stderr(io.StringIO()) as err:
+            code, text = run(["trash-fields", "--format", "csv"], self.session)
+        self.assertIn("dry run: pass --apply", err.getvalue())
         self.assertEqual(code, 0)
-        self.assertIn("dry run", text)
+        self.assertNotIn("dry run", text)
         self.assertIn("customfield_10011", text)
         self.assertEqual(self.session.calls_to("DELETE", "/field/"), [])
 
@@ -87,8 +91,11 @@ class CliTests(unittest.TestCase):
             path = os.path.join(tmp, "plan.csv")
             with open(path, "w", encoding="utf-8") as handle:
                 handle.write("action,group,accountId\nadd,devs,5b6a3c1f2d8e4a0b9c7f1e22\nadd,devs,GHOST\n")
-            code, text = run(["bulk-groups", path, "--apply", "--format", "csv"], self.session)
+            with contextlib.redirect_stderr(io.StringIO()) as err:
+                code, text = run(["bulk-groups", path, "--apply", "--format", "json"], self.session)
         self.assertEqual(code, 1)
+        self.assertEqual([r["status"] for r in json.loads(text)], ["added", "failed"])
+        self.assertIn("summary: 1 added, 1 failed", err.getvalue())
         self.assertIn("unknown or deactivated account", text)
 
     def test_group_members(self):

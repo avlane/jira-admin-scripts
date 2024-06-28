@@ -54,8 +54,9 @@ def emit(rows, columns, args, out):
 
 
 def dry_run_notice(args, out, what="make these changes"):
+    """Notices go to stderr so --format json and csv output stays machine readable."""
     if not args.apply:
-        out.write("dry run: pass --apply to {}\n".format(what))
+        print("dry run: pass --apply to {}".format(what), file=sys.stderr)
 
 
 def failed(rows):
@@ -126,6 +127,8 @@ def cmd_bulk_groups(client, args, out):
     results = groups.run_plan(client, steps, apply=args.apply, directory=users.UserDirectory(client))
     dry_run_notice(args, out)
     emit(results, ("action", "group", "accountId", "status", "detail"), args, out)
+    counts = groups.summarize(results)
+    print("summary: " + (", ".join("{} {}".format(n, s) for s, n in sorted(counts.items())) or "nothing to do"), file=sys.stderr)
     return failed(results)
 
 

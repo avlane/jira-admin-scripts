@@ -50,6 +50,11 @@ class PlanTests(unittest.TestCase):
         self.session.add("GET", r"/group/member$", load("group_member.json"))
         self.session.add("POST", r"/group/user$", FakeResponse(201, {"name": "jira-administrators"}))
 
+    def test_summarize(self):
+        self.assertEqual(groups.summarize([{"status": "added"}, {"status": "skipped"}, {"status": "added"}]),
+                         {"added": 2, "skipped": 1})
+        self.assertEqual(groups.summarize([]), {})
+
     def test_read_plan(self):
         steps = groups.read_plan(io.StringIO(CSV_OK))
         self.assertEqual(len(steps), 2)

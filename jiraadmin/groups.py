@@ -39,6 +39,14 @@ def read_plan(stream):
     return steps
 
 
+def summarize(results):
+    """Count results by status, e.g. {"added": 3, "skipped": 1}."""
+    counts = {}
+    for result in results:
+        counts[result["status"]] = counts.get(result["status"], 0) + 1
+    return counts
+
+
 def _result(step, status, detail=""):
     return dict(step, status=status, detail=detail)
 
