@@ -49,5 +49,22 @@ class GrantTests(unittest.TestCase):
         self.assertEqual(list(permissions.grant_findings(scheme)), [("DELETE_ISSUES", "applicationRole", "broad-risky")])
 
 
+def grant(permission, group):
+    return {"permission": permission, "holder": {"type": "group", "parameter": group}}
+
+
+class DuplicateSchemeTests(unittest.TestCase):
+    def test_identical_schemes_are_grouped(self):
+        a = {"id": 1, "name": "A", "permissions": [grant("BROWSE_PROJECTS", "devs"), grant("CREATE_ISSUES", "devs")]}
+        b = {"id": 2, "name": "B", "permissions": [grant("BROWSE_PROJECTS", "devs"), grant("CREATE_ISSUES", "devs")]}
+        c = {"id": 3, "name": "C", "permissions": [grant("BROWSE_PROJECTS", "devs")]}
+        groups = permissions.duplicate_schemes([a, b, c])
+        self.assertEqual([[s["name"] for s in g] for g in groups], [["A", "B"]])
+
+    def test_recorded_schemes_have_no_duplicates(self):
+        from tests.helpers import load
+        self.assertEqual(permissions.duplicate_schemes(load("permissionscheme.json")["permissionSchemes"]), [])
+
+
 if __name__ == "__main__":
     unittest.main()

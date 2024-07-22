@@ -65,3 +65,12 @@ def scheme_summary(client):
         rows.append({"id": scheme["id"], "name": scheme["name"], "grants": len(scheme.get("permissions", [])),
                      "projects": len(projects), "projectKeys": projects, "unused": not projects})
     return rows
+
+
+def duplicate_schemes(all_schemes):
+    """Groups of permission schemes that grant exactly the same permissions to the same holders."""
+    seen = {}
+    for scheme in all_schemes:
+        key = tuple((g["permission"], holder_label(g["holder"])) for g in scheme.get("permissions", []))
+        seen.setdefault(key, []).append(scheme)
+    return [group for group in seen.values() if len(group) > 1]

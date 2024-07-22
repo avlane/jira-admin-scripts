@@ -148,10 +148,15 @@ def cmd_roles(client, args, out):
 
 def _permissions_args(p):
     p.add_argument("--grants", action="store_true", help="list risky grants instead of the scheme summary")
+    p.add_argument("--duplicates", action="store_true", help="list schemes that grant exactly the same things")
 
 
 @command("permissions", "permission schemes and the projects that use them", _permissions_args)
 def cmd_permissions(client, args, out):
+    if args.duplicates:
+        rows = [{"schemes": [s["name"] for s in group], "ids": [s["id"] for s in group]}
+                for group in permissions.duplicate_schemes(permissions.schemes(client))]
+        return emit(rows, ("schemes", "ids"), args, out)
     if args.grants:
         return emit(permissions.grant_report(client), ("scheme", "permission", "holder", "finding"), args, out)
     return emit(permissions.scheme_summary(client), ("id", "name", "grants", "projects", "unused"), args, out)
