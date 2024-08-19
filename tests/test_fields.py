@@ -44,13 +44,20 @@ class SearchTests(unittest.TestCase):
     def test_requests_usage_data(self):
         params = self.session.calls[0]["params"]
         self.assertEqual(params["type"], "custom")
-        self.assertEqual(params["expand"], "lastUsed,screensCount")
-        self.assertEqual(len(self.found), 5)
+        self.assertEqual(params["expand"], "lastUsed,screensCount,contextsCount")
+        self.assertEqual(len(self.found), 6)
 
     def test_candidates_are_ranked_by_confidence(self):
         rows = fields.unused_candidates(self.found, now=NOW)
         self.assertEqual([(r["id"], r["confidence"]) for r in rows], [
-            ("customfield_10011", "high"), ("customfield_10032", "medium"), ("customfield_10033", "low")])
+            ("customfield_10011", "high"), ("customfield_10050", "high"),
+            ("customfield_10032", "medium"), ("customfield_10033", "low")])
+
+    def test_field_without_contexts_is_high_confidence_even_when_recent(self):
+        field = {"id": "customfield_1", "name": "Ghost", "contextsCount": 0, "screensCount": 2,
+                 "lastUsed": {"type": "TRACKED", "value": "2022-04-16T00:00:00.000+0000"}}
+        rows = fields.unused_candidates([field], now=NOW)
+        self.assertEqual(rows[0]["confidence"], "high")
 
     def test_untracked_and_recent_fields_are_left_alone(self):
         ids = {r["id"] for r in fields.unused_candidates(self.found, now=NOW)}

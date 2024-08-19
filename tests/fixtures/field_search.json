@@ -1,7 +1,7 @@
 {
   "maxResults": 50,
   "startAt": 0,
-  "total": 5,
+  "total": 6,
   "isLast": true,
   "values": [
     {
@@ -131,6 +131,31 @@
       "isLocked": false,
       "lastUsed": {
         "type": "NOT_TRACKED"
+      }
+    },
+    {
+      "id": "customfield_10050",
+      "key": "customfield_10050",
+      "name": "Orphan Context",
+      "custom": true,
+      "orderable": true,
+      "navigable": true,
+      "searchable": true,
+      "clauseNames": [
+        "cf[10050]",
+        "Orphan Context"
+      ],
+      "schema": {
+        "type": "string",
+        "custom": "com.atlassian.jira.plugin.system.customfieldtypes:textfield",
+        "customId": 10050
+      },
+      "screensCount": 3,
+      "contextsCount": 0,
+      "projectsCount": 0,
+      "isLocked": false,
+      "lastUsed": {
+        "type": "UNKNOWN"
       }
     }
   ]

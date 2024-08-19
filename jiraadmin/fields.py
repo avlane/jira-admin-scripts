@@ -9,7 +9,7 @@ def custom_fields(client):
 
 def search_fields(client):
     """Custom fields with screen counts and last-used data, via the paged field search."""
-    params = {"type": "custom", "expand": "lastUsed,screensCount"}
+    params = {"type": "custom", "expand": "lastUsed,screensCount,contextsCount"}
     return list(client.paginate("field/search", params=params, page_size=50))
 
 
@@ -46,7 +46,8 @@ def _parse(value):
 def unused_candidates(fields, now=None, stale_days=365):
     """Fields that look abandoned, with a confidence level.
 
-    high    last value written more than stale_days ago and on no screen
+    high    last value written more than stale_days ago and on no screen, or
+            the field has no contexts at all, so no project can ever use it
     medium  last value written more than stale_days ago but still on a screen
     low     Jira has no usage data for the field and it is on no screen
 
@@ -59,7 +60,9 @@ def unused_candidates(fields, now=None, stale_days=365):
         last = field.get("lastUsed") or {}
         on_screens = field.get("screensCount")
         confidence, reason = None, ""
-        if last.get("type") == "TRACKED" and _parse(last["value"]) < cutoff:
+        if field.get("contextsCount") == 0:
+            confidence, reason = "high", "no contexts; not available in any project"
+        elif last.get("type") == "TRACKED" and _parse(last["value"]) < cutoff:
             confidence = "high" if on_screens == 0 else "medium"
             reason = "last used " + last["value"][:10]
         elif last.get("type") == "UNKNOWN" and on_screens == 0:
