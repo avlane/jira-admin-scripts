@@ -241,6 +241,23 @@ def cmd_transfer_filters(client, args, out):
     return failed(rows)
 
 
+def _transfer_dashboards_args(p):
+    p.add_argument("--to", required=True, metavar="ACCOUNT_ID", help="accountId of the new owner")
+    _apply_flag(p)
+
+
+@command("transfer-dashboards", "give orphaned dashboards to another account", _transfer_dashboards_args)
+def cmd_transfer_dashboards(client, args, out):
+    users.require_assignable(client, args.to)
+    orphaned = [r for r in dashboards.audit(client) if "orphaned" in r["findings"]]
+    dry_run_notice(args, out)
+    results = dashboards.change_owner(client, [r["id"] for r in orphaned], args.to, apply=args.apply)
+    names = {r["id"]: r for r in orphaned}
+    rows = [dict(r, name=names[r["id"]]["name"], owner=names[r["id"]]["owner"]) for r in results]
+    emit(rows, ("id", "name", "owner", "status", "detail"), args, out)
+    return failed(rows)
+
+
 def _webhooks_args(p):
     p.add_argument("--internal-domain", action="append", default=[], metavar="DOMAIN",
                    help="domain you control (repeatable); other receivers are flagged as external")

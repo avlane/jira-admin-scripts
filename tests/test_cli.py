@@ -98,6 +98,16 @@ class CliTests(unittest.TestCase):
         self.assertIn("summary: 1 added, 1 failed", err.getvalue())
         self.assertIn("unknown or deactivated account", text)
 
+    def test_transfer_dashboards_dry_run(self):
+        from tests.helpers import load
+        self.session.add("GET", r"/dashboard/search$", load("dashboard_search.json"))
+        self.session.add("GET", r"/rest/api/3/user$", load("users_search.json")[0])
+        with contextlib.redirect_stderr(io.StringIO()):
+            code, text = run(["transfer-dashboards", "--to", "NEW", "--format", "csv"], self.session)
+        self.assertEqual(code, 0)
+        self.assertEqual(text.splitlines()[1:], ["10001,Dan's scratch,Dan Whitfield,planned,would transfer",
+                                                 "10003,Legacy KPIs,(deleted user),planned,would transfer"])
+
     def test_group_members(self):
         from tests.helpers import load
         self.session.add("GET", r"/group/member$", load("group_member.json"))
