@@ -21,16 +21,17 @@ def activity_jql(account_id, days):
     return '(assignee = "{0}" OR reporter = "{0}") AND updated >= -{1}d'.format(account_id, days)
 
 
-def inactive_users(client, days=90, limit=None, count=count_issues):
+def inactive_users(client, days=90, limit=None, count=count_issues, exclude=()):
     """Active human accounts that neither hold nor reported an issue touched in `days` days.
 
     Jira has no "last login" in the REST API, so recent issue involvement is
     the signal. Comments and worklogs on other people's issues are not seen,
     so treat the result as a list of candidates to check, not to deactivate.
+    Accounts in `exclude` (service accounts, people on leave) are never searched.
     """
     rows = []
     for user in human_users(client):
-        if not user.get("active"):
+        if not user.get("active") or user["accountId"] in exclude:
             continue
         if limit is not None and len(rows) >= limit:
             break
@@ -84,3 +85,13 @@ class UserDirectory:
     def is_active(self, account_id):
         user = self.get(account_id)
         return bool(user and user.get("active"))
+
+
+def read_account_list(stream):
+    """Account ids from a text file: one per line, blank lines and # comments ignored."""
+    ids = set()
+    for line in stream:
+        line = line.split("#", 1)[0].strip()
+        if line:
+            ids.add(line)
+    return ids

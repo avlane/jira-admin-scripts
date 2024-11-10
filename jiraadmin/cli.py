@@ -81,11 +81,16 @@ def cmd_users(client, args, out):
 def _inactive_args(p):
     p.add_argument("--days", type=int, default=90, help="look-back window (default 90)")
     p.add_argument("--limit", type=int, help="stop after this many candidates")
+    p.add_argument("--exclude-file", metavar="FILE", help="accountIds to skip, one per line")
 
 
 @command("inactive", "active accounts with no recent issue activity", _inactive_args)
 def cmd_inactive(client, args, out):
-    rows = users.inactive_users(client, days=args.days, limit=args.limit)
+    exclude = ()
+    if args.exclude_file:
+        with open(args.exclude_file, encoding="utf-8") as handle:
+            exclude = users.read_account_list(handle)
+    rows = users.inactive_users(client, days=args.days, limit=args.limit, exclude=exclude)
     return emit(rows, ("accountId", "displayName", "emailAddress", "recentIssues"), args, out)
 
 
