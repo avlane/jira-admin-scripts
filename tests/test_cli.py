@@ -114,6 +114,32 @@ class CliTests(unittest.TestCase):
         code, text = run(["group-members", "jira-administrators", "--format", "csv"], self.session)
         self.assertEqual(len(text.splitlines()), 4)
 
+    def test_missing_configuration_exits_with_2(self):
+        import os
+        from unittest import mock
+        with mock.patch.dict(os.environ, {}, clear=True), contextlib.redirect_stderr(io.StringIO()) as err:
+            code = cli.main(["users"], out=io.StringIO())
+        self.assertEqual(code, 2)
+        self.assertIn("JIRA_URL", err.getvalue())
+
+    def test_api_errors_exit_with_2(self):
+        from tests.helpers import FakeResponse
+        session = FakeSession().add("GET", r"/users/search$", FakeResponse(401, {"message": "Unauthorized"}))
+        with contextlib.redirect_stderr(io.StringIO()) as err:
+            code, text = run(["users"], session)
+        self.assertEqual(code, 2)
+        self.assertEqual(text, "")
+        self.assertIn("HTTP 401", err.getvalue())
+
+    def test_unknown_command_is_a_usage_error(self):
+        with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as ctx:
+            cli.build_parser().parse_args(["frobnicate"])
+        self.assertEqual(ctx.exception.code, 2)
+
+    def test_every_command_has_a_summary(self):
+        self.assertGreaterEqual(len(cli.COMMANDS), 16)
+        self.assertTrue(all(spec["summary"] for spec in cli.COMMANDS.values()))
+
     def test_group_members_needs_a_group(self):
         code, _ = run(["group-members"], self.session)
         self.assertEqual(code, 2)
