@@ -61,6 +61,11 @@ class DuplicateSchemeTests(unittest.TestCase):
         groups = permissions.duplicate_schemes([a, b, c])
         self.assertEqual([[s["name"] for s in g] for g in groups], [["A", "B"]])
 
+    def test_grant_order_does_not_matter(self):
+        a = {"id": 1, "name": "A", "permissions": [grant("BROWSE_PROJECTS", "devs"), grant("CREATE_ISSUES", "devs")]}
+        b = {"id": 2, "name": "B", "permissions": [grant("CREATE_ISSUES", "devs"), grant("BROWSE_PROJECTS", "devs")]}
+        self.assertEqual(len(permissions.duplicate_schemes([a, b])), 1)
+
     def test_recorded_schemes_have_no_duplicates(self):
         from tests.helpers import load
         self.assertEqual(permissions.duplicate_schemes(load("permissionscheme.json")["permissionSchemes"]), [])
