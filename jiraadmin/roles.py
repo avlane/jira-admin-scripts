@@ -24,7 +24,7 @@ def _actor_row(project, role_name, actor):
             "actorId": group.get("groupId", ""), "finding": ""}
 
 
-def audit(client, projects=None, check_users=False, directory=None):
+def audit(client, projects=None, check_users=False, directory=None, progress=None):
     """One row per role actor, plus a row for each role nobody holds.
 
     `projects` is a list of project keys; by default every classic project is checked.
@@ -34,6 +34,8 @@ def audit(client, projects=None, check_users=False, directory=None):
     keys = list(projects) if projects else [p["key"] for p in iter_projects(client)]
     rows = []
     for key in keys:
+        if progress is not None:
+            progress.tick()
         for role_name, role_id in sorted(project_roles(client, key).items()):
             if role_name in IGNORED_ROLES:
                 continue

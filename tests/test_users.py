@@ -50,6 +50,17 @@ class InactiveTests(unittest.TestCase):
         self.assertEqual([r["displayName"] for r in rows], ["Alice Moreau", "Bob Okafor", "Erin Castellano"])
         self.assertEqual(len(session.calls_to("GET", "/rest/api/3/search$")), 3)
 
+    def test_progress_ticks_once_per_searched_account(self):
+        from jiraadmin.progress import Progress
+        import io
+        session = FakeSession()
+        session.add("GET", r"/users/search$", paged(load("users_search.json")))
+        session.add("GET", r"/rest/api/3/search$", search_route({}))
+        stream = io.StringIO()
+        progress = Progress("inactive", stream=stream, every=2)
+        users.inactive_users(JiraClient("https://example.atlassian.net", session=session), progress=progress)
+        self.assertEqual(progress.done, 4)
+
     def test_account_list_file(self):
         import io
         text = "# service accounts\n5b10ac8d82e05b22cc7d4ef5\n\n  5b6a3c1f2d8e4a0b9c7f1e22  # on leave\n"

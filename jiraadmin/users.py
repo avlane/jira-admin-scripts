@@ -21,7 +21,7 @@ def activity_jql(account_id, days):
     return '(assignee = "{0}" OR reporter = "{0}") AND updated >= -{1}d'.format(account_id, days)
 
 
-def inactive_users(client, days=90, limit=None, count=count_issues, exclude=()):
+def inactive_users(client, days=90, limit=None, count=count_issues, exclude=(), progress=None):
     """Active human accounts that neither hold nor reported an issue touched in `days` days.
 
     Jira has no "last login" in the REST API, so recent issue involvement is
@@ -35,6 +35,8 @@ def inactive_users(client, days=90, limit=None, count=count_issues, exclude=()):
             continue
         if limit is not None and len(rows) >= limit:
             break
+        if progress is not None:
+            progress.tick()
         if count(client, activity_jql(user["accountId"], days)) == 0:
             rows.append({"accountId": user["accountId"], "displayName": user["displayName"],
                          "emailAddress": user.get("emailAddress", ""), "recentIssues": 0})

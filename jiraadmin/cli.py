@@ -3,7 +3,7 @@ import argparse
 import logging
 import sys
 
-from . import (config, dashboards, fields, filters, groups, licenses, permissions, report, roles,
+from . import (config, dashboards, fields, filters, groups, licenses, permissions, progress, report, roles,
                screens, users, webhooks, workflowschemes)
 from .client import JiraClient, JiraError
 
@@ -30,6 +30,7 @@ def _findings_only(parser):
 def build_parser():
     common = argparse.ArgumentParser(add_help=False)
     common.add_argument("--format", choices=FORMATS, default="table", help="output format (default table)")
+    common.add_argument("--progress", action="store_true", help="show progress on stderr during long audits")
     common.add_argument("-v", "--verbose", action="count", default=0,
                         help="log requests and rate-limit waits to stderr (-vv for debug)")
     parser = argparse.ArgumentParser(
@@ -90,7 +91,9 @@ def cmd_inactive(client, args, out):
     if args.exclude_file:
         with open(args.exclude_file, encoding="utf-8") as handle:
             exclude = users.read_account_list(handle)
-    rows = users.inactive_users(client, days=args.days, limit=args.limit, exclude=exclude)
+    tracker = progress.Progress("inactive", enabled=args.progress)
+    rows = users.inactive_users(client, days=args.days, limit=args.limit, exclude=exclude, progress=tracker)
+    tracker.finish()
     return emit(rows, ("accountId", "displayName", "emailAddress", "recentIssues"), args, out)
 
 
@@ -145,7 +148,9 @@ def _roles_args(p):
 
 @command("roles", "who holds each project role", _roles_args)
 def cmd_roles(client, args, out):
-    rows = roles.audit(client, projects=args.project, check_users=args.check_users)
+    tracker = progress.Progress("roles", every=5, enabled=args.progress)
+    rows = roles.audit(client, projects=args.project, check_users=args.check_users, progress=tracker)
+    tracker.finish()
     if args.findings_only:
         rows = [r for r in rows if r["finding"]]
     return emit(rows, ("project", "role", "actorType", "actor", "finding"), args, out)
