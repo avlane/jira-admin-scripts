@@ -1,7 +1,9 @@
 """Command line entry point: python -m jiraadmin <command>."""
 import argparse
 import logging
+import os
 import sys
+from datetime import datetime, timezone
 
 from . import (config, dashboards, fields, filters, groups, licenses, permissions, progress, report, roles,
                screens, users, webhooks, workflowschemes)
@@ -30,6 +32,7 @@ def _findings_only(parser):
 def build_parser():
     common = argparse.ArgumentParser(add_help=False)
     common.add_argument("--format", choices=FORMATS, default="table", help="output format (default table)")
+    common.add_argument("--output-dir", metavar="DIR", help="also save the rows as a timestamped JSON file in DIR")
     common.add_argument("--progress", action="store_true", help="show progress on stderr during long audits")
     common.add_argument("-v", "--verbose", action="count", default=0,
                         help="log requests and rate-limit waits to stderr (-vv for debug)")
@@ -49,8 +52,25 @@ def make_client():
     return JiraClient(base, email, token, **config.tuning())
 
 
+def utcnow():
+    return datetime.now(timezone.utc)
+
+
+def save_copy(rows, columns, args):
+    """Write the rows as JSON to <output-dir>/<command>-<UTC timestamp>.json and return the path."""
+    os.makedirs(args.output_dir, exist_ok=True)
+    stamp = utcnow().strftime("%Y%m%dT%H%M%SZ")
+    path = os.path.join(args.output_dir, "{}-{}.json".format(args.command, stamp))
+    with open(path, "w", encoding="utf-8") as handle:
+        handle.write(report.render(rows, columns, "json"))
+    print("saved {}".format(path), file=sys.stderr)
+    return path
+
+
 def emit(rows, columns, args, out):
     out.write(report.render(rows, columns, args.format))
+    if args.output_dir:
+        save_copy(rows, columns, args)
     return 0
 
 

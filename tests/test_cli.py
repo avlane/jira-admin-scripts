@@ -108,6 +108,23 @@ class CliTests(unittest.TestCase):
         self.assertEqual(text.splitlines()[1:], ["10001,Dan's scratch,Dan Whitfield,planned,would transfer",
                                                  "10003,Legacy KPIs,(deleted user),planned,would transfer"])
 
+    def test_output_dir_keeps_a_json_copy(self):
+        import os
+        import tempfile
+        from datetime import datetime, timezone
+        from unittest import mock
+        stamp = datetime(2025, 1, 26, 8, 30, 0, tzinfo=timezone.utc)
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.object(cli, "utcnow", return_value=stamp), \
+                contextlib.redirect_stderr(io.StringIO()) as err:
+            code, text = run(["users", "--output-dir", os.path.join(tmp, "reports"), "--format", "csv"], self.session)
+            path = os.path.join(tmp, "reports", "users-20250126T083000Z.json")
+            self.assertTrue(os.path.exists(path))
+            with open(path, encoding="utf-8") as handle:
+                saved = json.load(handle)
+        self.assertEqual(len(saved), 5)
+        self.assertEqual(text.splitlines()[0], "accountId,status,displayName,emailAddress")
+        self.assertIn("saved ", err.getvalue())
+
     def test_group_members(self):
         from tests.helpers import load
         self.session.add("GET", r"/group/member$", load("group_member.json"))
