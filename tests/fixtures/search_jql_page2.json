@@ -1,0 +1,13 @@
+{
+  "issues": [
+    {
+      "id": "10003",
+      "key": "PLAT-3",
+      "self": "https://example.atlassian.net/rest/api/3/issue/10003",
+      "fields": {
+        "updated": "2025-02-01T09:00:00.000+0000"
+      }
+    }
+  ],
+  "isLast": true
+}

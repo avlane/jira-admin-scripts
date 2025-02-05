@@ -20,12 +20,11 @@ class UserTests(unittest.TestCase):
 
 
 def search_route(totals):
+    """Stand-in for search/jql: an account with n recent issues gets up to maxResults of them."""
     def handler(call):
         jql = call["params"]["jql"]
-        for account_id, total in totals.items():
-            if account_id in jql:
-                return {"startAt": 0, "maxResults": 0, "total": total, "issues": []}
-        return {"startAt": 0, "maxResults": 0, "total": 0, "issues": []}
+        n = next((total for account_id, total in totals.items() if account_id in jql), 0)
+        return {"issues": [{"id": str(i)} for i in range(min(n, int(call["params"]["maxResults"])))], "isLast": True}
     return handler
 
 
@@ -33,29 +32,29 @@ class InactiveTests(unittest.TestCase):
     def test_only_accounts_without_recent_issues_are_reported(self):
         session = FakeSession()
         session.add("GET", r"/users/search$", paged(load("users_search.json")))
-        session.add("GET", r"/rest/api/3/search$", search_route({"5b10ac8d82e05b22cc7d4ef5": 12, "5b6a3c1f2d8e4a0b9c7f1e22": 1}))
+        session.add("GET", r"/search/jql$", search_route({"5b10ac8d82e05b22cc7d4ef5": 12, "5b6a3c1f2d8e4a0b9c7f1e22": 1}))
         client = JiraClient("https://example.atlassian.net", session=session)
         rows = users.inactive_users(client, days=60)
         self.assertEqual([r["displayName"] for r in rows], ["Carol Nguyen", "Erin Castellano"])
         self.assertEqual(rows[1]["emailAddress"], "")
-        jql = session.calls_to("GET", "/rest/api/3/search$")[0]["params"]["jql"]
+        jql = session.calls_to("GET", "/search/jql$")[0]["params"]["jql"]
         self.assertIn("updated >= -60d", jql)
 
     def test_excluded_accounts_are_not_searched(self):
         session = FakeSession()
         session.add("GET", r"/users/search$", paged(load("users_search.json")))
-        session.add("GET", r"/rest/api/3/search$", search_route({}))
+        session.add("GET", r"/search/jql$", search_route({}))
         client = JiraClient("https://example.atlassian.net", session=session)
         rows = users.inactive_users(client, exclude={"712020:6f1d2a3b-4c5d-4e6f-8a9b-0c1d2e3f4a5b"})
         self.assertEqual([r["displayName"] for r in rows], ["Alice Moreau", "Bob Okafor", "Erin Castellano"])
-        self.assertEqual(len(session.calls_to("GET", "/rest/api/3/search$")), 3)
+        self.assertEqual(len(session.calls_to("GET", "/search/jql$")), 3)
 
     def test_progress_ticks_once_per_searched_account(self):
         from jiraadmin.progress import Progress
         import io
         session = FakeSession()
         session.add("GET", r"/users/search$", paged(load("users_search.json")))
-        session.add("GET", r"/rest/api/3/search$", search_route({}))
+        session.add("GET", r"/search/jql$", search_route({}))
         stream = io.StringIO()
         progress = Progress("inactive", stream=stream, every=2)
         users.inactive_users(JiraClient("https://example.atlassian.net", session=session), progress=progress)
@@ -69,7 +68,7 @@ class InactiveTests(unittest.TestCase):
     def test_limit_stops_early(self):
         session = FakeSession()
         session.add("GET", r"/users/search$", paged([u for u in load("users_search.json") if u.get("emailAddress")]))
-        session.add("GET", r"/rest/api/3/search$", search_route({}))
+        session.add("GET", r"/search/jql$", search_route({}))
         client = JiraClient("https://example.atlassian.net", session=session)
         self.assertEqual(len(users.inactive_users(client, limit=2)), 2)
 

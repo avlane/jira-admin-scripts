@@ -37,7 +37,7 @@ def inactive_users(client, days=90, limit=None, count=count_issues, exclude=(), 
             break
         if progress is not None:
             progress.tick()
-        if count(client, activity_jql(user["accountId"], days)) == 0:
+        if count(client, activity_jql(user["accountId"], days), limit=1) == 0:
             rows.append({"accountId": user["accountId"], "displayName": user["displayName"],
                          "emailAddress": user.get("emailAddress", ""), "recentIssues": 0})
     return rows
