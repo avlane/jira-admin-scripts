@@ -6,7 +6,7 @@ import sys
 from datetime import datetime, timezone
 
 from . import (config, dashboards, fields, filters, groups, licenses, permissions, progress, report, roles,
-               screens, users, webhooks, workflowschemes)
+               screens, search, users, webhooks, workflowschemes)
 from .client import JiraClient, JiraError
 
 FORMATS = ("table", "csv", "json", "markdown")
@@ -321,6 +321,20 @@ def setup_logging(verbosity):
 def cmd_workflow_schemes(client, args, out):
     rows = workflowschemes.report(client)
     return emit(rows, ("id", "name", "defaultWorkflow", "workflows", "projects", "unused"), args, out)
+
+
+def _count_args(p):
+    p.add_argument("jql", help="JQL query to count")
+    p.add_argument("--exact", action="store_true", help="page through every match instead of asking for an estimate")
+
+
+@command("count", "how many issues match a JQL query", _count_args)
+def cmd_count(client, args, out):
+    if args.exact:
+        number = search.count_issues(client, args.jql)
+    else:
+        number = search.approximate_count(client, args.jql)
+    return emit([{"jql": args.jql, "count": number, "exact": args.exact}], ("jql", "count", "exact"), args, out)
 
 
 def main(argv=None, client=None, out=None):

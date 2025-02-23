@@ -27,3 +27,11 @@ def count_issues(client, jql, limit=None):
         if limit is not None and seen >= limit:
             break
     return seen
+
+
+def approximate_count(client, jql):
+    """Estimated number of matching issues from one POST, without paging through them.
+
+    Good enough for "roughly how many", not for deciding that the answer is zero.
+    """
+    return client.request("POST", "search/approximate-count", body={"jql": jql}, expected=(200,))["count"]

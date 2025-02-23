@@ -125,6 +125,15 @@ class CliTests(unittest.TestCase):
         self.assertEqual(text.splitlines()[0], "accountId,status,displayName,emailAddress")
         self.assertIn("saved ", err.getvalue())
 
+    def test_count_estimate_and_exact(self):
+        from tests.helpers import Seq, load
+        self.session.add("POST", r"/search/approximate-count$", {"count": 42})
+        self.session.add("GET", r"/search/jql$", Seq(load("search_jql_page1.json"), load("search_jql_page2.json")))
+        code, text = run(["count", "project = PLAT", "--format", "csv"], self.session)
+        self.assertEqual(text.splitlines()[1], "project = PLAT,42,no")
+        code, text = run(["count", "project = PLAT", "--exact", "--format", "csv"], self.session)
+        self.assertEqual(text.splitlines()[1], "project = PLAT,3,yes")
+
     def test_group_members(self):
         from tests.helpers import load
         self.session.add("GET", r"/group/member$", load("group_member.json"))
