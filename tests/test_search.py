@@ -32,6 +32,14 @@ class SearchTests(unittest.TestCase):
         self.assertEqual(len(session.calls), 1)
         self.assertEqual(session.calls[0]["params"]["maxResults"], 1)
 
+    def test_runaway_queries_are_stopped(self):
+        page = {"issues": [{"id": "1", "key": "A-1"}], "nextPageToken": "again"}
+        session = FakeSession().add("GET", r"/search/jql$", page)
+        client = JiraClient("https://example.atlassian.net", session=session)
+        with self.assertRaises(RuntimeError):
+            list(search.iter_issues(client, "project = A", max_pages=3))
+        self.assertEqual(len(session.calls), 3)
+
     def test_no_results(self):
         session = FakeSession().add("GET", r"/search/jql$", {"issues": [], "isLast": True})
         client = JiraClient("https://example.atlassian.net", session=session)
