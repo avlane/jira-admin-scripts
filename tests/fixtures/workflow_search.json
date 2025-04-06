@@ -1,0 +1,192 @@
+{
+  "maxResults": 50,
+  "startAt": 0,
+  "total": 6,
+  "isLast": true,
+  "values": [
+    {
+      "id": {
+        "name": "jira",
+        "entityId": "wf-jira"
+      },
+      "description": "",
+      "version": {
+        "id": "v1",
+        "versionNumber": 0
+      },
+      "scope": {
+        "type": "GLOBAL"
+      },
+      "isDefault": true,
+      "statuses": [
+        {
+          "id": "10000",
+          "name": "Open"
+        },
+        {
+          "id": "10001",
+          "name": "In Progress"
+        },
+        {
+          "id": "10002",
+          "name": "Done"
+        }
+      ],
+      "schemes": []
+    },
+    {
+      "id": {
+        "name": "PLAT Workflow",
+        "entityId": "wf-plat-workflow"
+      },
+      "description": "",
+      "version": {
+        "id": "v1",
+        "versionNumber": 0
+      },
+      "scope": {
+        "type": "GLOBAL"
+      },
+      "isDefault": false,
+      "statuses": [
+        {
+          "id": "10000",
+          "name": "To Do"
+        },
+        {
+          "id": "10001",
+          "name": "In Review"
+        },
+        {
+          "id": "10002",
+          "name": "Done"
+        }
+      ],
+      "schemes": [
+        {
+          "id": "10000"
+        }
+      ]
+    },
+    {
+      "id": {
+        "name": "PLAT Bug Workflow",
+        "entityId": "wf-plat-bug-workflow"
+      },
+      "description": "",
+      "version": {
+        "id": "v1",
+        "versionNumber": 0
+      },
+      "scope": {
+        "type": "GLOBAL"
+      },
+      "isDefault": false,
+      "statuses": [
+        {
+          "id": "10000",
+          "name": "Open"
+        },
+        {
+          "id": "10001",
+          "name": "Triaged"
+        },
+        {
+          "id": "10002",
+          "name": "Fixed"
+        }
+      ],
+      "schemes": [
+        {
+          "id": "10000"
+        }
+      ]
+    },
+    {
+      "id": {
+        "name": "OPS Request Workflow",
+        "entityId": "wf-ops-request-workflow"
+      },
+      "description": "",
+      "version": {
+        "id": "v1",
+        "versionNumber": 0
+      },
+      "scope": {
+        "type": "GLOBAL"
+      },
+      "isDefault": false,
+      "statuses": [
+        {
+          "id": "10000",
+          "name": "Waiting"
+        },
+        {
+          "id": "10001",
+          "name": "Done"
+        }
+      ],
+      "schemes": [
+        {
+          "id": "10001"
+        }
+      ]
+    },
+    {
+      "id": {
+        "name": "Old Release Flow",
+        "entityId": "wf-old-release-flow"
+      },
+      "description": "",
+      "version": {
+        "id": "v1",
+        "versionNumber": 0
+      },
+      "scope": {
+        "type": "GLOBAL"
+      },
+      "isDefault": false,
+      "statuses": [
+        {
+          "id": "10000",
+          "name": "Planned"
+        },
+        {
+          "id": "10001",
+          "name": "Shipped"
+        }
+      ],
+      "schemes": []
+    },
+    {
+      "id": {
+        "name": "Retired Flow",
+        "entityId": "wf-retired-flow"
+      },
+      "description": "",
+      "version": {
+        "id": "v1",
+        "versionNumber": 0
+      },
+      "scope": {
+        "type": "GLOBAL"
+      },
+      "isDefault": false,
+      "statuses": [
+        {
+          "id": "10000",
+          "name": "Open"
+        },
+        {
+          "id": "10001",
+          "name": "Closed"
+        }
+      ],
+      "schemes": [
+        {
+          "id": "10002"
+        }
+      ]
+    }
+  ]
+}
