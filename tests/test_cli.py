@@ -134,6 +134,12 @@ class CliTests(unittest.TestCase):
         code, text = run(["count", "project = PLAT", "--exact", "--format", "csv"], self.session)
         self.assertEqual(text.splitlines()[1], "project = PLAT,3,yes")
 
+    def test_workflows_findings_only(self):
+        from tests.test_workflows import make_client
+        _, session = make_client()
+        code, text = run(["workflows", "--findings-only", "--format", "csv"], session)
+        self.assertEqual(text.splitlines()[1:], ["Old Release Flow,2,0,no,unused", "Retired Flow,2,1,no,only-in-unused-schemes"])
+
     def test_group_members(self):
         from tests.helpers import load
         self.session.add("GET", r"/group/member$", load("group_member.json"))

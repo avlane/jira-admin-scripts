@@ -40,6 +40,8 @@ timeout in seconds. The account needs Administer Jira for most commands.
 | `webhooks` | admin-registered webhooks, with risky-setting flags |
 | `screens` | screens no scheme uses; `--schemes` for issue type screen schemes |
 | `workflow-schemes` | workflow schemes and the projects that use them |
+| `workflows` | workflows no scheme uses |
+| `count` | how many issues match a JQL query |
 
 Every command takes `--format table|csv|json|markdown`, and `-v` shows requests and
 rate-limit waits on stderr. Notices and summaries go to stderr, so JSON and CSV on

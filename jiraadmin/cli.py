@@ -6,7 +6,7 @@ import sys
 from datetime import datetime, timezone
 
 from . import (config, dashboards, fields, filters, groups, licenses, permissions, progress, report, roles,
-               screens, search, users, webhooks, workflowschemes)
+               screens, search, users, webhooks, workflows, workflowschemes)
 from .client import JiraClient, JiraError
 
 FORMATS = ("table", "csv", "json", "markdown")
@@ -321,6 +321,18 @@ def setup_logging(verbosity):
 def cmd_workflow_schemes(client, args, out):
     rows = workflowschemes.report(client)
     return emit(rows, ("id", "name", "defaultWorkflow", "workflows", "projects", "unused"), args, out)
+
+
+def _workflows_args(p):
+    p.add_argument("--findings-only", action="store_true", help="only workflows nothing uses")
+
+
+@command("workflows", "workflows that no workflow scheme uses", _workflows_args)
+def cmd_workflows(client, args, out):
+    rows = workflows.report(client)
+    if args.findings_only:
+        rows = [r for r in rows if r["finding"]]
+    return emit(rows, ("name", "statuses", "schemes", "default", "finding"), args, out)
 
 
 def _count_args(p):
