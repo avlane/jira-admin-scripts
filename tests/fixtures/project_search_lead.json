@@ -1,0 +1,93 @@
+{
+  "maxResults": 50,
+  "startAt": 0,
+  "total": 5,
+  "isLast": true,
+  "values": [
+    {
+      "expand": "description,lead,issueTypes,url,projectKeys,permissions,insight",
+      "self": "https://example.atlassian.net/rest/api/3/project/10000",
+      "id": "10000",
+      "key": "PLAT",
+      "name": "Platform",
+      "projectTypeKey": "software",
+      "simplified": false,
+      "style": "classic",
+      "isPrivate": false,
+      "lead": {
+        "self": "https://example.atlassian.net/rest/api/3/user?accountId=5b10ac8d82e05b22cc7d4ef5",
+        "accountId": "5b10ac8d82e05b22cc7d4ef5",
+        "displayName": "Alice Moreau",
+        "active": true
+      }
+    },
+    {
+      "expand": "description,lead,issueTypes,url,projectKeys,permissions,insight",
+      "self": "https://example.atlassian.net/rest/api/3/project/10001",
+      "id": "10001",
+      "key": "OPS",
+      "name": "Operations",
+      "projectTypeKey": "software",
+      "simplified": false,
+      "style": "classic",
+      "isPrivate": false,
+      "lead": {
+        "self": "https://example.atlassian.net/rest/api/3/user?accountId=5b6a3c1f2d8e4a0b9c7f1e22",
+        "accountId": "5b6a3c1f2d8e4a0b9c7f1e22",
+        "displayName": "Bob Okafor",
+        "active": true
+      }
+    },
+    {
+      "expand": "description,lead,issueTypes,url,projectKeys,permissions,insight",
+      "self": "https://example.atlassian.net/rest/api/3/project/10002",
+      "id": "10002",
+      "key": "NEXT",
+      "name": "Roadmap Sandbox",
+      "projectTypeKey": "software",
+      "simplified": true,
+      "style": "next-gen",
+      "isPrivate": false,
+      "lead": {
+        "self": "https://example.atlassian.net/rest/api/3/user?accountId=712020:6f1d2a3b-4c5d-4e6f-8a9b-0c1d2e3f4a5b",
+        "accountId": "712020:6f1d2a3b-4c5d-4e6f-8a9b-0c1d2e3f4a5b",
+        "displayName": "Carol Nguyen",
+        "active": true
+      }
+    },
+    {
+      "expand": "description,lead,issueTypes,url,projectKeys,permissions,insight",
+      "self": "https://example.atlassian.net/rest/api/3/project/10003",
+      "id": "10003",
+      "key": "OLD",
+      "name": "Old Experiments",
+      "projectTypeKey": "software",
+      "simplified": false,
+      "style": "classic",
+      "isPrivate": false,
+      "lead": {
+        "self": "https://example.atlassian.net/rest/api/3/user?accountId=557058:aa11bb22-cc33-44dd-ee55-ff6677889900",
+        "accountId": "557058:aa11bb22-cc33-44dd-ee55-ff6677889900",
+        "displayName": "Dan Whitfield",
+        "active": false
+      }
+    },
+    {
+      "expand": "description,lead,issueTypes,url,projectKeys,permissions,insight",
+      "self": "https://example.atlassian.net/rest/api/3/project/10004",
+      "id": "10004",
+      "key": "ARCH",
+      "name": "Architecture",
+      "projectTypeKey": "software",
+      "simplified": false,
+      "style": "classic",
+      "isPrivate": false,
+      "lead": {
+        "self": "https://example.atlassian.net/rest/api/3/user?accountId=712020:6f1d2a3b-4c5d-4e6f-8a9b-0c1d2e3f4a5b",
+        "accountId": "712020:6f1d2a3b-4c5d-4e6f-8a9b-0c1d2e3f4a5b",
+        "displayName": "Carol Nguyen",
+        "active": true
+      }
+    }
+  ]
+}

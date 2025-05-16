@@ -5,7 +5,7 @@ import os
 import sys
 from datetime import datetime, timezone
 
-from . import (config, dashboards, fields, filters, groups, licenses, permissions, progress, report, roles,
+from . import (config, dashboards, fields, filters, groups, licenses, permissions, progress, projects, report, roles,
                screens, search, users, webhooks, workflows, workflowschemes)
 from .client import JiraClient, JiraError
 
@@ -333,6 +333,21 @@ def cmd_workflows(client, args, out):
     if args.findings_only:
         rows = [r for r in rows if r["finding"]]
     return emit(rows, ("name", "statuses", "schemes", "default", "finding"), args, out)
+
+
+def _projects_args(p):
+    p.add_argument("--stale-days", type=int, default=365, help="idle time that counts as stale (default 365)")
+    p.add_argument("--findings-only", action="store_true", help="only stale and empty projects")
+
+
+@command("projects", "projects with no recent issue activity", _projects_args)
+def cmd_projects(client, args, out):
+    tracker = progress.Progress("projects", every=5, enabled=args.progress)
+    rows = projects.stale_report(client, days=args.stale_days, progress=tracker)
+    tracker.finish()
+    if args.findings_only:
+        rows = [r for r in rows if r["finding"]]
+    return emit(rows, ("key", "name", "lead", "leadActive", "lastUpdated", "idleDays", "finding"), args, out)
 
 
 def _count_args(p):
