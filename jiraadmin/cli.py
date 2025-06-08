@@ -350,6 +350,22 @@ def cmd_projects(client, args, out):
     return emit(rows, ("key", "name", "lead", "leadActive", "lastUpdated", "idleDays", "finding"), args, out)
 
 
+def _archive_args(p):
+    p.add_argument("--stale-days", type=int, default=365)
+    p.add_argument("--include-stale", action="store_true", help="also archive stale projects, not just empty ones")
+    _apply_flag(p)
+
+
+@command("archive-projects", "archive empty (and optionally stale) projects", _archive_args)
+def cmd_archive_projects(client, args, out):
+    wanted = ("empty", "stale") if args.include_stale else ("empty",)
+    chosen = [r["key"] for r in projects.stale_report(client, days=args.stale_days) if r["finding"] in wanted]
+    dry_run_notice(args, out, "archive these projects")
+    rows = projects.archive_projects(client, chosen, apply=args.apply)
+    emit(rows, ("key", "status", "detail"), args, out)
+    return failed(rows)
+
+
 def _count_args(p):
     p.add_argument("jql", help="JQL query to count")
     p.add_argument("--exact", action="store_true", help="page through every match instead of asking for an estimate")

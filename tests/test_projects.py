@@ -52,5 +52,18 @@ class StaleProjectTests(unittest.TestCase):
         self.assertEqual(session.calls_to("GET", "/project/search")[0]["params"]["expand"], "lead")
 
 
+class ArchiveTests(unittest.TestCase):
+    def test_dry_run_and_apply(self):
+        from tests.helpers import FakeResponse
+        client, session = make_client()
+        session.add("POST", r"/project/OLD/archive$", FakeResponse(204))
+        session.add("POST", r"/project/OPS/archive$", FakeResponse(403, {"errorMessages": ["No permission"]}))
+        planned = projects.archive_projects(client, ["OLD", "OPS"])
+        self.assertEqual([r["status"] for r in planned], ["planned", "planned"])
+        self.assertEqual(session.calls, [])
+        done = projects.archive_projects(client, ["OLD", "OPS"], apply=True)
+        self.assertEqual([r["status"] for r in done], ["archived", "failed"])
+
+
 if __name__ == "__main__":
     unittest.main()

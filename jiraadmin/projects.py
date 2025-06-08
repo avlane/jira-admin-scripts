@@ -48,3 +48,21 @@ def stale_report(client, days=365, now=None, progress=None):
                      "leadActive": lead.get("active"), "lastUpdated": updated[:10] if updated else "",
                      "idleDays": idle, "finding": finding})
     return rows
+
+
+def archive_projects(client, keys, apply=False):
+    """Archive projects. Dry run unless apply is set. Archived projects can be restored from the admin UI."""
+    from .client import JiraError
+
+    results = []
+    for key in keys:
+        if not apply:
+            results.append({"key": key, "status": "planned", "detail": "would archive"})
+            continue
+        try:
+            client.request("POST", "project/{}/archive".format(key), expected=(200, 202, 204))
+        except JiraError as exc:
+            results.append({"key": key, "status": "failed", "detail": str(exc)})
+            continue
+        results.append({"key": key, "status": "archived", "detail": ""})
+    return results
