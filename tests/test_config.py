@@ -27,11 +27,18 @@ class ConfigTests(unittest.TestCase):
 
 class TuningTests(unittest.TestCase):
     def test_defaults(self):
-        self.assertEqual(config.tuning({}), {"max_retries": 5, "timeout": 30})
+        self.assertEqual(config.tuning({}), {"max_retries": 5, "timeout": 30, "min_interval": 0.0})
 
     def test_overrides(self):
         got = config.tuning({"JIRA_MAX_RETRIES": "2", "JIRA_TIMEOUT": "10"})
-        self.assertEqual(got, {"max_retries": 2, "timeout": 10})
+        self.assertEqual(got, {"max_retries": 2, "timeout": 10, "min_interval": 0.0})
+
+    def test_requests_per_second_becomes_an_interval(self):
+        self.assertEqual(config.tuning({"JIRA_REQUESTS_PER_SECOND": "4"})["min_interval"], 0.25)
+        with self.assertRaises(config.ConfigError):
+            config.tuning({"JIRA_REQUESTS_PER_SECOND": "0"})
+        with self.assertRaises(config.ConfigError):
+            config.tuning({"JIRA_REQUESTS_PER_SECOND": "fast"})
 
     def test_rejects_junk(self):
         with self.assertRaises(config.ConfigError):

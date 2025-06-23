@@ -32,6 +32,37 @@ class ClientTests(unittest.TestCase):
         self.assertIsNone(make(session).request("GET", "ping", expected=(204,)))
 
 
+class PacingTests(unittest.TestCase):
+    def test_requests_are_spaced_out(self):
+        class Time:
+            now = 100.0
+
+            def clock(self):
+                return self.now
+
+            def sleep(self, seconds):
+                self.now += seconds
+
+        t = Time()
+        session = FakeSession().add("GET", r"/ping$", {"ok": True})
+        client = JiraClient("https://example.atlassian.net", session=session, min_interval=0.5, clock=t.clock, sleep=t.sleep)
+        client.get("ping")
+        t.now += 0.2
+        client.get("ping")
+        self.assertAlmostEqual(t.now, 100.5)
+        t.now += 5
+        client.get("ping")
+        self.assertAlmostEqual(t.now, 105.5)
+
+    def test_no_pacing_by_default(self):
+        sleeps = []
+        session = FakeSession().add("GET", r"/ping$", {"ok": True})
+        client = JiraClient("https://example.atlassian.net", session=session, sleep=sleeps.append)
+        client.get("ping")
+        client.get("ping")
+        self.assertEqual(sleeps, [])
+
+
 class TransientErrorTests(unittest.TestCase):
     def test_gateway_errors_are_retried_with_backoff(self):
         session = FakeSession().add("GET", r"/myself$", Seq(FakeResponse(503), FakeResponse(502), {"ok": True}))

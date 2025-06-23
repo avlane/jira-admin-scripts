@@ -55,12 +55,23 @@ class JiraClient:
     API = "/rest/api/3/"
 
     def __init__(self, base_url, email=None, token=None, session=None, timeout=30,
-                 max_retries=5, sleep=time.sleep):
+                 max_retries=5, sleep=time.sleep, min_interval=0.0, clock=time.monotonic):
         self.base_url = base_url.rstrip("/")
         self.session = session if session is not None else default_session(email, token)
         self.timeout = timeout
         self.max_retries = max_retries
         self.sleep = sleep
+        self.min_interval = min_interval
+        self.clock = clock
+        self._last_request = None
+
+    def _pace(self):
+        """Keep at least min_interval seconds between requests."""
+        if self.min_interval and self._last_request is not None:
+            wait = self._last_request + self.min_interval - self.clock()
+            if wait > 0:
+                self.sleep(wait)
+        self._last_request = self.clock()
 
     def url(self, path: str) -> str:
         if path.startswith("/rest/"):
@@ -72,6 +83,7 @@ class JiraClient:
         attempt = 0
         while True:
             log.debug("%s %s", method, url)
+            self._pace()
             resp = self.session.request(method, url, params=params, json=body, timeout=self.timeout)
             if resp.status_code == 429 and attempt < self.max_retries:
                 attempt += 1

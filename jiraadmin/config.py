@@ -24,10 +24,24 @@ def _int(env: dict[str, str], name: str, default: int) -> int:
     return value
 
 
-def tuning(environ: Optional[dict[str, str]] = None) -> dict[str, int]:
-    """Optional knobs: JIRA_MAX_RETRIES for 429 handling and JIRA_TIMEOUT in seconds."""
+def _rate(env: dict[str, str]) -> float:
+    raw = env.get("JIRA_REQUESTS_PER_SECOND")
+    if raw in (None, ""):
+        return 0.0
+    try:
+        value = float(raw)
+    except ValueError:
+        raise ConfigError("JIRA_REQUESTS_PER_SECOND must be a number (got {!r})".format(raw))
+    if value <= 0:
+        raise ConfigError("JIRA_REQUESTS_PER_SECOND must be greater than zero")
+    return 1.0 / value
+
+
+def tuning(environ: Optional[dict[str, str]] = None) -> dict:
+    """Optional knobs: JIRA_MAX_RETRIES, JIRA_TIMEOUT (seconds) and JIRA_REQUESTS_PER_SECOND."""
     env = os.environ if environ is None else environ
-    return {"max_retries": _int(env, "JIRA_MAX_RETRIES", 5), "timeout": _int(env, "JIRA_TIMEOUT", 30)}
+    return {"max_retries": _int(env, "JIRA_MAX_RETRIES", 5), "timeout": _int(env, "JIRA_TIMEOUT", 30),
+            "min_interval": _rate(env)}
 
 
 def from_env(environ: Optional[dict[str, str]] = None) -> tuple[str, str, str]:
