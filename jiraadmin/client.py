@@ -31,6 +31,20 @@ def default_session(email, token):
     return session
 
 
+def seconds_until(stamp, now=None):
+    """Seconds from now until an ISO 8601 timestamp such as 2025-07-13T10:00:05Z, or None if unparsable."""
+    if not stamp:
+        return None
+    try:
+        when = datetime.fromisoformat(stamp.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if when.tzinfo is None:
+        when = when.replace(tzinfo=timezone.utc)
+    now = now or datetime.now(timezone.utc)
+    return max(0, math.ceil((when - now).total_seconds()))
+
+
 def retry_after(resp, default: int = 5, now: Optional[datetime] = None) -> int:
     """Seconds to wait before retrying a 429, from the Retry-After header.
 
@@ -73,6 +87,19 @@ class JiraClient:
                 self.sleep(wait)
         self._last_request = self.clock()
 
+    def _ease_off(self, resp):
+        """Pause when Jira says the rate limit budget is nearly spent, before a 429 happens.
+
+        Atlassian is rolling out X-RateLimit-* headers; when they are absent this does nothing.
+        """
+        if str(resp.headers.get("X-RateLimit-NearLimit", "")).lower() != "true":
+            return
+        delay = seconds_until(resp.headers.get("X-RateLimit-Reset"))
+        delay = min(1 if delay is None else delay, 10)
+        if delay:
+            log.info("close to the rate limit (remaining %s); pausing %ss", resp.headers.get("X-RateLimit-Remaining", "?"), delay)
+            self.sleep(delay)
+
     def url(self, path: str) -> str:
         if path.startswith("/rest/"):
             return self.base_url + path
@@ -88,7 +115,8 @@ class JiraClient:
             if resp.status_code == 429 and attempt < self.max_retries:
                 attempt += 1
                 delay = retry_after(resp)
-                log.warning("rate limited on %s %s; waiting %ss (retry %d of %d)", method, url, delay, attempt, self.max_retries)
+                log.warning("rate limited on %s %s (%s); waiting %ss (retry %d of %d)", method, url,
+                            resp.headers.get("RateLimit-Reason", "no reason given"), delay, attempt, self.max_retries)
                 self.sleep(delay)
                 continue
             if resp.status_code in TRANSIENT and method.upper() in IDEMPOTENT and attempt < self.max_retries:
@@ -98,6 +126,7 @@ class JiraClient:
                 self.sleep(delay)
                 continue
             break
+        self._ease_off(resp)
         if resp.status_code not in expected:
             raise JiraError("{} {} failed with HTTP {}: {}".format(method, url, resp.status_code, resp.text[:200]),
                             resp.status_code, url)

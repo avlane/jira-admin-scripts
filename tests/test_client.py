@@ -32,6 +32,46 @@ class ClientTests(unittest.TestCase):
         self.assertIsNone(make(session).request("GET", "ping", expected=(204,)))
 
 
+class NearLimitTests(unittest.TestCase):
+    def test_pauses_until_the_reset_time_when_near_the_limit(self):
+        from datetime import datetime, timedelta, timezone
+        reset = (datetime.now(timezone.utc) + timedelta(seconds=4, milliseconds=500)).strftime("%Y-%m-%dT%H:%M:%S.%f+00:00")
+        near = FakeResponse(200, {"ok": True}, {"X-RateLimit-NearLimit": "true", "X-RateLimit-Reset": reset, "X-RateLimit-Remaining": "12"})
+        session = FakeSession().add("GET", r"/ping$", near)
+        sleeps = []
+        JiraClient("https://example.atlassian.net", session=session, sleep=sleeps.append).get("ping")
+        self.assertEqual(len(sleeps), 1)
+        self.assertTrue(3 <= sleeps[0] <= 5)
+
+    def test_pause_is_capped(self):
+        near = FakeResponse(200, {"ok": True}, {"X-RateLimit-NearLimit": "true", "X-RateLimit-Reset": "2999-01-01T00:00:00Z"})
+        session = FakeSession().add("GET", r"/ping$", near)
+        sleeps = []
+        JiraClient("https://example.atlassian.net", session=session, sleep=sleeps.append).get("ping")
+        self.assertEqual(sleeps, [10])
+
+    def test_unparsable_reset_pauses_a_second(self):
+        near = FakeResponse(200, {"ok": True}, {"X-RateLimit-NearLimit": "true", "X-RateLimit-Reset": "tomorrow"})
+        session = FakeSession().add("GET", r"/ping$", near)
+        sleeps = []
+        JiraClient("https://example.atlassian.net", session=session, sleep=sleeps.append).get("ping")
+        self.assertEqual(sleeps, [1])
+
+    def test_no_headers_no_pause(self):
+        session = FakeSession().add("GET", r"/ping$", FakeResponse(200, {"ok": True}, {"X-RateLimit-Remaining": "900"}))
+        sleeps = []
+        JiraClient("https://example.atlassian.net", session=session, sleep=sleeps.append).get("ping")
+        self.assertEqual(sleeps, [])
+
+    def test_seconds_until(self):
+        from datetime import datetime, timezone
+        from jiraadmin.client import seconds_until
+        now = datetime(2025, 7, 13, 10, 0, 0, tzinfo=timezone.utc)
+        self.assertEqual(seconds_until("2025-07-13T10:00:05Z", now), 5)
+        self.assertEqual(seconds_until("2025-07-13T09:00:00Z", now), 0)
+        self.assertIsNone(seconds_until(None, now))
+
+
 class PacingTests(unittest.TestCase):
     def test_requests_are_spaced_out(self):
         class Time:
