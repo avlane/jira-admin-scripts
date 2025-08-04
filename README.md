@@ -56,6 +56,12 @@ each account to add exists and is active before sending anything.
 
 ## Rate limits and retries
 
+Atlassian is moving Jira Cloud to points-based rate limits. Responses may carry
+`X-RateLimit-NearLimit`, `X-RateLimit-Remaining` and `X-RateLimit-Reset` headers; when
+`NearLimit` is true the client pauses until the reset time (at most 10 seconds) before it
+sends more. A 429 is logged with its `RateLimit-Reason` header when there is one.
+Set `JIRA_REQUESTS_PER_SECOND` to stay well under the limit on big audits.
+
 HTTP 429 responses are retried after the `Retry-After` delay (seconds or an HTTP date).
 502, 503 and 504 are retried with a short backoff for GET, PUT and DELETE, never for POST.
 
