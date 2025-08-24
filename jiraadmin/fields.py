@@ -80,17 +80,7 @@ def trash_fields(client, field_ids, apply=False):
     Jira keeps trashed fields for 60 days, and they can be restored from the
     admin UI or with POST field/{id}/restore, so this is reversible for a while.
     """
-    from .client import JiraError
+    from .actions import run_each
 
-    results = []
-    for field_id in field_ids:
-        if not apply:
-            results.append({"id": field_id, "status": "planned", "detail": "would move to trash"})
-            continue
-        try:
-            client.request("DELETE", "field/{}".format(field_id), expected=(200, 202, 204, 303))
-        except JiraError as exc:
-            results.append({"id": field_id, "status": "failed", "detail": str(exc)})
-            continue
-        results.append({"id": field_id, "status": "trashed", "detail": ""})
-    return results
+    return run_each(field_ids, lambda field_id: client.request("DELETE", "field/{}".format(field_id), expected=(200, 202, 204, 303)),
+                    apply=apply, planned="would move to trash", done="trashed")

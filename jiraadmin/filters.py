@@ -48,17 +48,8 @@ def transfer_owner(client, filter_ids, new_owner, apply=False):
 
     Uses PUT filter/{id}/owner, which needs the Administer Jira global permission.
     """
-    from .client import JiraError
+    from .actions import run_each
 
-    results = []
-    for filter_id in filter_ids:
-        if not apply:
-            results.append({"id": filter_id, "status": "planned", "detail": "would transfer"})
-            continue
-        try:
-            client.request("PUT", "filter/{}/owner".format(filter_id), body={"accountId": new_owner}, expected=(200, 204))
-        except JiraError as exc:
-            results.append({"id": filter_id, "status": "failed", "detail": str(exc)})
-            continue
-        results.append({"id": filter_id, "status": "transferred", "detail": ""})
-    return results
+    return run_each(filter_ids, lambda filter_id: client.request("PUT", "filter/{}/owner".format(filter_id),
+                                                                  body={"accountId": new_owner}, expected=(200, 204)),
+                    apply=apply, planned="would transfer", done="transferred")
