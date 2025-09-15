@@ -95,3 +95,18 @@ def run_plan(client, steps, apply=False, directory=None):
             current[group].discard(account_id)
         results.append(_result(step, "added" if adding else "removed"))
     return results
+
+
+def iter_groups(client):
+    """Every group, via group/bulk (name and groupId)."""
+    return client.paginate("group/bulk", page_size=100)
+
+
+def empty_groups(client):
+    """Groups with no members at all, active or not."""
+    rows = []
+    for group in iter_groups(client):
+        found = members(client, group_id=group["groupId"], include_inactive=True)
+        if not found:
+            rows.append({"name": group["name"], "groupId": group["groupId"], "members": 0})
+    return rows

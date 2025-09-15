@@ -366,6 +366,11 @@ def cmd_archive_projects(client, args, out):
     return failed(rows)
 
 
+@command("empty-groups", "groups that have no members")
+def cmd_empty_groups(client, args, out):
+    return emit(groups.empty_groups(client), ("name", "groupId", "members"), args, out)
+
+
 def _count_args(p):
     p.add_argument("jql", help="JQL query to count")
     p.add_argument("--exact", action="store_true", help="page through every match instead of asking for an estimate")

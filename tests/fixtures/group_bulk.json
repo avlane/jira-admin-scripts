@@ -1,0 +1,24 @@
+{
+  "maxResults": 50,
+  "startAt": 0,
+  "total": 4,
+  "isLast": true,
+  "values": [
+    {
+      "name": "jira-administrators",
+      "groupId": "a1b2c3d4-0000-4000-8000-000000000001"
+    },
+    {
+      "name": "plat-developers",
+      "groupId": "a1b2c3d4-0000-4000-8000-000000000002"
+    },
+    {
+      "name": "ops-agents",
+      "groupId": "a1b2c3d4-0000-4000-8000-000000000003"
+    },
+    {
+      "name": "old-contractors",
+      "groupId": "a1b2c3d4-0000-4000-8000-000000000004"
+    }
+  ]
+}

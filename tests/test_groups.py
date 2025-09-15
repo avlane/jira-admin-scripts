@@ -112,5 +112,29 @@ class PlanTests(unittest.TestCase):
         self.assertIn("400", results[1]["detail"])
 
 
+class EmptyGroupTests(unittest.TestCase):
+    def setUp(self):
+        counts = {"a1b2c3d4-0000-4000-8000-000000000001": 3, "a1b2c3d4-0000-4000-8000-000000000002": 5,
+                  "a1b2c3d4-0000-4000-8000-000000000003": 2, "a1b2c3d4-0000-4000-8000-000000000004": 0}
+        people = load("group_member.json")["values"]
+
+        def member_route(call):
+            n = counts[call["params"]["groupId"]]
+            return paged((people * 2)[:n], key="values")(call)
+
+        self.session = FakeSession()
+        self.session.add("GET", r"/group/bulk$", load("group_bulk.json"))
+        self.session.add("GET", r"/group/member$", member_route)
+
+    def test_finds_groups_without_members(self):
+        rows = groups.empty_groups(make(self.session))
+        self.assertEqual(rows, [{"name": "old-contractors", "groupId": "a1b2c3d4-0000-4000-8000-000000000004", "members": 0}])
+
+    def test_inactive_members_count(self):
+        groups.empty_groups(make(self.session))
+        calls = self.session.calls_to("GET", "/group/member")
+        self.assertTrue(all(c["params"]["includeInactiveUsers"] == "true" for c in calls))
+
+
 if __name__ == "__main__":
     unittest.main()
