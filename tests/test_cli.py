@@ -140,6 +140,14 @@ class CliTests(unittest.TestCase):
         code, text = run(["workflows", "--findings-only", "--format", "csv"], session)
         self.assertEqual(text.splitlines()[1:], ["Old Release Flow,2,0,no,unused", "Retired Flow,2,1,no,only-in-unused-schemes"])
 
+    def test_empty_groups_command(self):
+        from tests.helpers import load
+        self.session.add("GET", r"/group/bulk$", load("group_bulk.json"))
+        self.session.add("GET", r"/group/member$", {"values": [], "total": 0, "isLast": True})
+        code, text = run(["empty-groups", "--format", "csv"], self.session)
+        self.assertEqual(code, 0)
+        self.assertEqual(len(text.splitlines()), 5)
+
     def test_group_members(self):
         from tests.helpers import load
         self.session.add("GET", r"/group/member$", load("group_member.json"))
