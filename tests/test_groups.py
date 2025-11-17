@@ -135,6 +135,12 @@ class EmptyGroupTests(unittest.TestCase):
         calls = self.session.calls_to("GET", "/group/member")
         self.assertTrue(all(c["params"]["includeInactiveUsers"] == "true" for c in calls))
 
+    def test_large_groups_are_not_downloaded(self):
+        groups.empty_groups(make(self.session))
+        calls = self.session.calls_to("GET", "/group/member")
+        self.assertEqual(len(calls), 4)
+        self.assertTrue(all(c["params"]["maxResults"] == 1 for c in calls))
+
 
 if __name__ == "__main__":
     unittest.main()

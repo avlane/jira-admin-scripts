@@ -106,7 +106,12 @@ def empty_groups(client):
     """Groups with no members at all, active or not."""
     rows = []
     for group in iter_groups(client):
-        found = members(client, group_id=group["groupId"], include_inactive=True)
-        if not found:
+        if member_count(client, group["groupId"]) == 0:
             rows.append({"name": group["name"], "groupId": group["groupId"], "members": 0})
     return rows
+
+
+def member_count(client, group_id):
+    """Total members of a group from one request: ask for a single member and read `total`."""
+    params = {"groupId": group_id, "includeInactiveUsers": "true", "maxResults": 1}
+    return client.get("group/member", params=params).get("total", 0)
