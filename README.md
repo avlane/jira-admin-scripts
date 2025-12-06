@@ -42,15 +42,17 @@ needs Administer Jira for most commands.
 | `screens` | screens no scheme uses; `--schemes` for issue type screen schemes |
 | `workflow-schemes` | workflow schemes and the projects that use them |
 | `workflows` | workflows no scheme uses |
+| `projects` | projects with no recent issue activity; `archive-projects` archives empty ones |
+| `empty-groups` | groups with no members |
 | `count` | how many issues match a JQL query |
 
-Every command takes `--format table|csv|json|markdown`, and `-v` shows requests and
-rate-limit waits on stderr. Notices and summaries go to stderr, so JSON and CSV on
+Every command takes `--format table|csv|json|markdown`, `--output-dir DIR` to keep a timestamped
+JSON copy, `--progress` for long audits, and `-v` to show requests and rate-limit waits on stderr. Notices and summaries go to stderr, so JSON and CSV on
 stdout can be piped as they are.
 
 ## Dry runs
 
-Commands that change anything (`bulk-groups`, `trash-fields`, `transfer-*`) print what
+Commands that change anything (`bulk-groups`, `trash-fields`, `transfer-*`, `archive-projects`) print what
 they would do and stop. Add `--apply` to make the change. Bulk group changes check that
 each account to add exists and is active before sending anything.
 
