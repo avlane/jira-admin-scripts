@@ -21,6 +21,11 @@ log = logging.getLogger("jiraadmin.client")
 TRANSIENT = (502, 503, 504)
 IDEMPOTENT = ("GET", "PUT", "DELETE")
 
+HINTS = {
+    401: "check JIRA_EMAIL and JIRA_API_TOKEN; API tokens expire (after at most a year), so you may need a new one",
+    403: "the account is not allowed to do this; most admin commands need the Administer Jira permission",
+}
+
 
 def default_session(email, token):
     import requests  # imported lazily so the tests run without it installed
@@ -128,8 +133,10 @@ class JiraClient:
             break
         self._ease_off(resp)
         if resp.status_code not in expected:
-            raise JiraError("{} {} failed with HTTP {}: {}".format(method, url, resp.status_code, resp.text[:200]),
-                            resp.status_code, url)
+            message = "{} {} failed with HTTP {}: {}".format(method, url, resp.status_code, resp.text[:200])
+            if resp.status_code in HINTS:
+                message += " ({})".format(HINTS[resp.status_code])
+            raise JiraError(message, resp.status_code, url)
         if resp.status_code == 204 or not resp.text:
             return None
         return resp.json()

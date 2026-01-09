@@ -27,6 +27,19 @@ class ClientTests(unittest.TestCase):
             make(session).get("myself")
         self.assertEqual(ctx.exception.status, 401)
 
+    def test_auth_failures_explain_what_to_check(self):
+        for status, hint in ((401, "API token"), (403, "Administer Jira")):
+            session = FakeSession().add("GET", r"/myself$", FakeResponse(status, {"message": "no"}))
+            with self.assertRaises(JiraError) as ctx:
+                make(session).get("myself")
+            self.assertIn(hint, str(ctx.exception))
+
+    def test_other_errors_have_no_hint(self):
+        session = FakeSession().add("GET", r"/myself$", FakeResponse(404, {"message": "gone"}))
+        with self.assertRaises(JiraError) as ctx:
+            make(session).get("myself")
+        self.assertNotIn("(check", str(ctx.exception))
+
     def test_empty_body_returns_none(self):
         session = FakeSession().add("GET", r"/ping$", FakeResponse(204))
         self.assertIsNone(make(session).request("GET", "ping", expected=(204,)))
