@@ -20,7 +20,8 @@ The only runtime dependency is `requests`, imported lazily.
 
 Optional: `JIRA_MAX_RETRIES` (default 5) is how many times a rate-limited or briefly
 unavailable request is retried, and `JIRA_TIMEOUT` (default 30) is the per-request
-timeout in seconds. `JIRA_REQUESTS_PER_SECOND` spaces requests out (for example `2`). The account
+timeout in seconds. `JIRA_REQUESTS_PER_SECOND` spaces requests out (for example `2`), and `JIRA_MAX_WAIT` (default 300)
+is the longest `Retry-After` the client will sit through before giving up. The account
 needs Administer Jira for most commands.
 
 ## Commands

@@ -74,13 +74,14 @@ class JiraClient:
     API = "/rest/api/3/"
 
     def __init__(self, base_url, email=None, token=None, session=None, timeout=30,
-                 max_retries=5, sleep=time.sleep, min_interval=0.0, clock=time.monotonic):
+                 max_retries=5, sleep=time.sleep, min_interval=0.0, clock=time.monotonic, max_wait=300):
         self.base_url = base_url.rstrip("/")
         self.session = session if session is not None else default_session(email, token)
         self.timeout = timeout
         self.max_retries = max_retries
         self.sleep = sleep
         self.min_interval = min_interval
+        self.max_wait = max_wait
         self.clock = clock
         self._last_request = None
 
@@ -120,6 +121,9 @@ class JiraClient:
             if resp.status_code == 429 and attempt < self.max_retries:
                 attempt += 1
                 delay = retry_after(resp)
+                if delay > self.max_wait:
+                    raise JiraError("rate limited: Jira asked for a {}s wait, longer than the {}s limit".format(delay, self.max_wait),
+                                    429, url)
                 log.warning("rate limited on %s %s (%s); waiting %ss (retry %d of %d)", method, url,
                             resp.headers.get("RateLimit-Reason", "no reason given"), delay, attempt, self.max_retries)
                 self.sleep(delay)

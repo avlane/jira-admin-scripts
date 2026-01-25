@@ -41,7 +41,7 @@ def tuning(environ: Optional[dict[str, str]] = None) -> dict:
     """Optional knobs: JIRA_MAX_RETRIES, JIRA_TIMEOUT (seconds) and JIRA_REQUESTS_PER_SECOND."""
     env = os.environ if environ is None else environ
     return {"max_retries": _int(env, "JIRA_MAX_RETRIES", 5), "timeout": _int(env, "JIRA_TIMEOUT", 30),
-            "min_interval": _rate(env)}
+            "min_interval": _rate(env), "max_wait": _int(env, "JIRA_MAX_WAIT", 300)}
 
 
 def from_env(environ: Optional[dict[str, str]] = None) -> tuple[str, str, str]:
