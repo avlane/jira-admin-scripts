@@ -27,6 +27,7 @@ def read_plan(stream):
     if missing:
         raise PlanError("CSV is missing column(s): " + ", ".join(sorted(missing)))
     steps = []
+    seen = {}
     for number, row in enumerate(reader, start=2):
         action = (row["action"] or "").strip().lower()
         if action not in ("add", "remove"):
@@ -35,6 +36,13 @@ def read_plan(stream):
         account_id = (row["accountId"] or "").strip()
         if not group or not account_id:
             raise PlanError("line {}: group and accountId are required".format(number))
+        earlier = seen.get((group, account_id))
+        if earlier is None:
+            seen[(group, account_id)] = action
+        elif earlier != action:
+            raise PlanError("line {}: {} is both added to and removed from {}".format(number, account_id, group))
+        else:
+            continue  # exact duplicate row; keep the first
         steps.append({"action": action, "group": group, "accountId": account_id})
     return steps
 

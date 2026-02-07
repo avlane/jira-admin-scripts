@@ -50,6 +50,17 @@ class PlanTests(unittest.TestCase):
         self.session.add("GET", r"/group/member$", load("group_member.json"))
         self.session.add("POST", r"/group/user$", FakeResponse(201, {"name": "jira-administrators"}))
 
+    def test_contradicting_rows_are_rejected(self):
+        text = "action,group,accountId\nadd,devs,A1\nremove,devs,A1\n"
+        with self.assertRaises(groups.PlanError) as ctx:
+            groups.read_plan(io.StringIO(text))
+        self.assertIn("line 3", str(ctx.exception))
+
+    def test_duplicate_rows_are_dropped(self):
+        text = "action,group,accountId\nadd,devs,A1\nadd,devs,A2\nadd,devs,A1\nadd,ops,A1\n"
+        steps = groups.read_plan(io.StringIO(text))
+        self.assertEqual([(s["group"], s["accountId"]) for s in steps], [("devs", "A1"), ("devs", "A2"), ("ops", "A1")])
+
     def test_summarize(self):
         self.assertEqual(groups.summarize([{"status": "added"}, {"status": "skipped"}, {"status": "added"}]),
                          {"added": 2, "skipped": 1})
