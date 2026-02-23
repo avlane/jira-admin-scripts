@@ -61,6 +61,21 @@ class PlanTests(unittest.TestCase):
         steps = groups.read_plan(io.StringIO(text))
         self.assertEqual([(s["group"], s["accountId"]) for s in steps], [("devs", "A1"), ("devs", "A2"), ("ops", "A1")])
 
+    def test_group_id_column(self):
+        text = "action,groupId,accountId\nadd,a1b2c3d4-0000-4000-8000-000000000001,NEWUSER1\n"
+        steps = groups.read_plan(io.StringIO(text))
+        self.assertEqual(steps[0]["groupId"], "a1b2c3d4-0000-4000-8000-000000000001")
+        results = groups.run_plan(make(self.session), steps, apply=True)
+        self.assertEqual(results[0]["status"], "added")
+        self.assertEqual(self.session.calls_to("GET", "/group/member")[0]["params"]["groupId"], "a1b2c3d4-0000-4000-8000-000000000001")
+        self.assertEqual(self.session.calls_to("POST", "/group/user")[0]["params"], {"groupId": "a1b2c3d4-0000-4000-8000-000000000001"})
+
+    def test_a_row_needs_some_group(self):
+        with self.assertRaises(groups.PlanError):
+            groups.read_plan(io.StringIO("action,group,groupId,accountId\nadd,,,A1\n"))
+        with self.assertRaises(groups.PlanError):
+            groups.read_plan(io.StringIO("action,accountId\nadd,A1\n"))
+
     def test_summarize(self):
         self.assertEqual(groups.summarize([{"status": "added"}, {"status": "skipped"}, {"status": "added"}]),
                          {"added": 2, "skipped": 1})

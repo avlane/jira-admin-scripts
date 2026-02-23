@@ -154,7 +154,7 @@ def cmd_bulk_groups(client, args, out):
         steps = groups.read_plan(handle)
     results = groups.run_plan(client, steps, apply=args.apply, directory=users.UserDirectory(client))
     dry_run_notice(args, out)
-    emit(results, ("action", "group", "accountId", "status", "detail"), args, out)
+    emit(results, ("action", "group", "groupId", "accountId", "status", "detail"), args, out)
     counts = groups.summarize(results)
     print("summary: " + (", ".join("{} {}".format(n, s) for s, n in sorted(counts.items())) or "nothing to do"), file=sys.stderr)
     return failed(results)

@@ -32,7 +32,7 @@ needs Administer Jira for most commands.
 | `inactive` | active accounts with no recent issue activity; `--exclude-file` skips listed accounts |
 | `licenses` | seat usage per application, with a warning threshold |
 | `group-members` | members of a group, by name or `--group-id` |
-| `bulk-groups FILE.csv` | add or remove group members from `action,group,accountId` rows |
+| `bulk-groups FILE.csv` | add or remove group members from `action,group,accountId` rows (a `groupId` column can replace `group`) |
 | `roles` | who holds each project role; `--check-users` flags deactivated people |
 | `permissions` | permission schemes and their projects; `--grants`, `--duplicates` |
 | `fields` | custom fields; `--duplicates`, `--unused` |

@@ -19,11 +19,18 @@ class PlanError(ValueError):
 
 
 def read_plan(stream):
-    """Parse a CSV with the columns action, group, accountId into a list of steps."""
+    """Parse a CSV into a list of steps.
+
+    Columns: action, accountId, and group (a name) or groupId. When a row has
+    both, the groupId is used.
+    """
     import csv
 
     reader = csv.DictReader(stream)
-    missing = {"action", "group", "accountId"} - set(reader.fieldnames or [])
+    names = set(reader.fieldnames or [])
+    missing = {"action", "accountId"} - names
+    if not names & {"group", "groupId"}:
+        missing.add("group (or groupId)")
     if missing:
         raise PlanError("CSV is missing column(s): " + ", ".join(sorted(missing)))
     steps = []
@@ -32,19 +39,30 @@ def read_plan(stream):
         action = (row["action"] or "").strip().lower()
         if action not in ("add", "remove"):
             raise PlanError("line {}: unsupported action {!r}".format(number, action))
-        group = (row["group"] or "").strip()
+        group = (row.get("group") or "").strip()
+        group_id = (row.get("groupId") or "").strip()
         account_id = (row["accountId"] or "").strip()
-        if not group or not account_id:
-            raise PlanError("line {}: group and accountId are required".format(number))
-        earlier = seen.get((group, account_id))
+        if not (group or group_id) or not account_id:
+            raise PlanError("line {}: a group (or groupId) and an accountId are required".format(number))
+        ref = group_id or group
+        earlier = seen.get((ref, account_id))
         if earlier is None:
-            seen[(group, account_id)] = action
+            seen[(ref, account_id)] = action
         elif earlier != action:
-            raise PlanError("line {}: {} is both added to and removed from {}".format(number, account_id, group))
+            raise PlanError("line {}: {} is both added to and removed from {}".format(number, account_id, ref))
         else:
             continue  # exact duplicate row; keep the first
-        steps.append({"action": action, "group": group, "accountId": account_id})
+        step = {"action": action, "group": group, "accountId": account_id}
+        if group_id:
+            step["groupId"] = group_id
+        steps.append(step)
     return steps
+
+
+def _group_params(step):
+    if step.get("groupId"):
+        return {"groupId": step["groupId"]}
+    return {"groupname": step["group"]}
 
 
 def summarize(results):
@@ -73,9 +91,10 @@ def run_plan(client, steps, apply=False, directory=None):
     current = {}
     results = []
     for step in steps:
-        group, account_id = step["group"], step["accountId"]
+        group, account_id = step.get("groupId") or step["group"], step["accountId"]
         if group not in current:
-            current[group] = {m["accountId"] for m in members(client, group, include_inactive=True)}
+            found = members(client, None if step.get("groupId") else group, include_inactive=True, group_id=step.get("groupId"))
+            current[group] = {m["accountId"] for m in found}
         adding = step["action"] == "add"
         if adding and directory is not None and not directory.is_active(account_id):
             results.append(_result(step, "failed", "unknown or deactivated account"))
@@ -89,10 +108,10 @@ def run_plan(client, steps, apply=False, directory=None):
             continue
         try:
             if adding:
-                client.request("POST", "group/user", params={"groupname": group},
+                client.request("POST", "group/user", params=_group_params(step),
                                body={"accountId": account_id}, expected=(200, 201))
             else:
-                client.request("DELETE", "group/user", params={"groupname": group, "accountId": account_id},
+                client.request("DELETE", "group/user", params=dict(_group_params(step), accountId=account_id),
                                expected=(200, 204))
         except JiraError as exc:
             results.append(_result(step, "failed", str(exc)))
