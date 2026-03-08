@@ -46,6 +46,7 @@ needs Administer Jira for most commands.
 | `projects` | projects with no recent issue activity; `archive-projects` archives empty ones |
 | `empty-groups` | groups with no members |
 | `count` | how many issues match a JQL query |
+| `doctor` | checks the credentials and the Administer Jira permission |
 
 Every command takes `--format table|csv|json|markdown`, `--output-dir DIR` to keep a timestamped
 JSON copy, `--progress` for long audits, and `-v` to show requests and rate-limit waits on stderr. Notices and summaries go to stderr, so JSON and CSV on

@@ -5,7 +5,7 @@ import os
 import sys
 from datetime import datetime, timezone
 
-from . import (config, dashboards, fields, filters, groups, licenses, permissions, progress, projects, report, roles,
+from . import (config, dashboards, doctor, fields, filters, groups, licenses, permissions, progress, projects, report, roles,
                screens, search, users, webhooks, workflows, workflowschemes)
 from .client import JiraClient, JiraError
 
@@ -369,6 +369,13 @@ def cmd_archive_projects(client, args, out):
 @command("empty-groups", "groups that have no members")
 def cmd_empty_groups(client, args, out):
     return emit(groups.empty_groups(client), ("name", "groupId", "members"), args, out)
+
+
+@command("doctor", "check credentials and permissions before a long audit")
+def cmd_doctor(client, args, out):
+    rows = doctor.run_checks(client)
+    emit(rows, ("check", "status", "detail"), args, out)
+    return 1 if any(r["status"] == "fail" for r in rows) else 0
 
 
 def _count_args(p):
