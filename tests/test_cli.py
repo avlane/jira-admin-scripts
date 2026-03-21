@@ -148,6 +148,15 @@ class CliTests(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertEqual(len(text.splitlines()), 5)
 
+    def test_doctor_exit_code(self):
+        from tests.helpers import load
+        self.session.add("GET", r"/serverInfo$", load("serverinfo.json"))
+        self.session.add("GET", r"/myself$", {"accountId": "x", "displayName": "Test"})
+        self.session.add("GET", r"/mypermissions$", {"permissions": {"ADMINISTER": {"havePermission": False}}})
+        code, text = run(["doctor", "--format", "csv"], self.session)
+        self.assertEqual(code, 1)
+        self.assertEqual(len(text.splitlines()), 4)
+
     def test_group_members(self):
         from tests.helpers import load
         self.session.add("GET", r"/group/member$", load("group_member.json"))
