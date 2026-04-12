@@ -1,6 +1,5 @@
 """Read connection settings from environment variables."""
 import os
-from typing import Optional
 
 URL_VAR = "JIRA_URL"
 EMAIL_VAR = "JIRA_EMAIL"
@@ -37,14 +36,14 @@ def _rate(env: dict[str, str]) -> float:
     return 1.0 / value
 
 
-def tuning(environ: Optional[dict[str, str]] = None) -> dict:
+def tuning(environ: dict[str, str] | None = None) -> dict:
     """Optional knobs: JIRA_MAX_RETRIES, JIRA_TIMEOUT (seconds) and JIRA_REQUESTS_PER_SECOND."""
     env = os.environ if environ is None else environ
     return {"max_retries": _int(env, "JIRA_MAX_RETRIES", 5), "timeout": _int(env, "JIRA_TIMEOUT", 30),
             "min_interval": _rate(env), "max_wait": _int(env, "JIRA_MAX_WAIT", 300)}
 
 
-def from_env(environ: Optional[dict[str, str]] = None) -> tuple[str, str, str]:
+def from_env(environ: dict[str, str] | None = None) -> tuple[str, str, str]:
     """Return (base_url, email, token) or raise ConfigError naming what is missing."""
     env = os.environ if environ is None else environ
     missing = [name for name in (URL_VAR, EMAIL_VAR, TOKEN_VAR) if not env.get(name)]

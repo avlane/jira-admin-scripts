@@ -4,7 +4,7 @@ import math
 import time
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
-from typing import Any, Iterator, Optional
+from typing import Any, Iterator
 
 
 class JiraError(Exception):
@@ -50,7 +50,7 @@ def seconds_until(stamp, now=None):
     return max(0, math.ceil((when - now).total_seconds()))
 
 
-def retry_after(resp, default: int = 5, now: Optional[datetime] = None) -> int:
+def retry_after(resp, default: int = 5, now: datetime | None = None) -> int:
     """Seconds to wait before retrying a 429, from the Retry-After header.
 
     The header is either a number of seconds or an HTTP date.
@@ -145,10 +145,10 @@ class JiraClient:
             return None
         return resp.json()
 
-    def get(self, path: str, params: Optional[dict] = None) -> Any:
+    def get(self, path: str, params: dict | None = None) -> Any:
         return self.request("GET", path, params=params)
 
-    def paginate(self, path: str, params: Optional[dict] = None, key: str = "values",
+    def paginate(self, path: str, params: dict | None = None, key: str = "values",
                  page_size: int = 50) -> Iterator[dict]:
         """Yield every item from a startAt/maxResults endpoint.
 
