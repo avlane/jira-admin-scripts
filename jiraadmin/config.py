@@ -43,6 +43,43 @@ def tuning(environ: dict[str, str] | None = None) -> dict:
             "min_interval": _rate(env), "max_wait": _int(env, "JIRA_MAX_WAIT", 300)}
 
 
+DEFAULT_CONFIG = "~/.config/jiraadmin.toml"
+
+
+def load_profile(path: str, name: str) -> dict:
+    """Read [profiles.<name>] from a TOML file.
+
+    A profile holds `url`, `email` and `token_env`, the *name* of the environment
+    variable that holds the API token. Tokens are never read from the file itself.
+    """
+    try:
+        import tomllib
+    except ImportError:
+        raise ConfigError("config files need Python 3.11 or newer (tomllib); use environment variables instead")
+    path = os.path.expanduser(path)
+    try:
+        with open(path, "rb") as handle:
+            data = tomllib.load(handle)
+    except FileNotFoundError:
+        raise ConfigError("config file not found: " + path)
+    except tomllib.TOMLDecodeError as exc:
+        raise ConfigError("{}: {}".format(path, exc))
+    profiles = data.get("profiles", {})
+    if name not in profiles:
+        raise ConfigError("no profile {!r} in {} (found: {})".format(name, path, ", ".join(sorted(profiles)) or "none"))
+    return profiles[name]
+
+
+def from_profile(path: str, name: str, environ: dict[str, str] | None = None) -> tuple[str, str, str]:
+    """Return (base_url, email, token) for a named profile."""
+    env = os.environ if environ is None else environ
+    profile = load_profile(path, name)
+    token_env = profile.get("token_env", TOKEN_VAR)
+    if not env.get(token_env):
+        raise ConfigError("profile {!r} expects the API token in ${}".format(name, token_env))
+    return from_env({URL_VAR: profile.get("url", ""), EMAIL_VAR: profile.get("email", ""), TOKEN_VAR: env[token_env]})
+
+
 def from_env(environ: dict[str, str] | None = None) -> tuple[str, str, str]:
     """Return (base_url, email, token) or raise ConfigError naming what is missing."""
     env = os.environ if environ is None else environ
