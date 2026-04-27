@@ -180,6 +180,20 @@ class CliTests(unittest.TestCase):
         self.assertEqual(text, "")
         self.assertIn("HTTP 401", err.getvalue())
 
+    def test_profile_flags_reach_make_client(self):
+        import os
+        import tempfile
+        from unittest import mock
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "p.toml")
+            with open(path, "w", encoding="utf-8") as handle:
+                handle.write('[profiles.prod]\nurl = "https://example.atlassian.net"\nemail = "ops@example.com"\ntoken_env = "T"\n')
+            args = cli.build_parser().parse_args(["users", "--profile", "prod", "--config", path])
+            with mock.patch.dict(os.environ, {"T": "secret"}, clear=True), \
+                    mock.patch.object(cli, "JiraClient") as fake:
+                cli.make_client(args)
+        self.assertEqual(fake.call_args.args, ("https://example.atlassian.net", "ops@example.com", "secret"))
+
     def test_unknown_command_is_a_usage_error(self):
         with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as ctx:
             cli.build_parser().parse_args(["frobnicate"])

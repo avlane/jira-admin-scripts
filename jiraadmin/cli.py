@@ -32,6 +32,8 @@ def _findings_only(parser):
 def build_parser():
     common = argparse.ArgumentParser(add_help=False)
     common.add_argument("--format", choices=FORMATS, default="table", help="output format (default table)")
+    common.add_argument("--profile", metavar="NAME", help="use [profiles.NAME] from the config file instead of JIRA_* variables")
+    common.add_argument("--config", metavar="FILE", help="profile file (default {})".format(config.DEFAULT_CONFIG))
     common.add_argument("--output-dir", metavar="DIR", help="also save the rows as a timestamped JSON file in DIR")
     common.add_argument("--progress", action="store_true", help="show progress on stderr during long audits")
     common.add_argument("-v", "--verbose", action="count", default=0,
@@ -47,8 +49,12 @@ def build_parser():
     return parser
 
 
-def make_client():
-    base, email, token = config.from_env()
+def make_client(args=None):
+    profile = getattr(args, "profile", None)
+    if profile:
+        base, email, token = config.from_profile(args.config or config.DEFAULT_CONFIG, profile)
+    else:
+        base, email, token = config.from_env()
     return JiraClient(base, email, token, **config.tuning())
 
 
@@ -397,7 +403,7 @@ def main(argv=None, client=None, out=None):
     args = build_parser().parse_args(argv)
     setup_logging(args.verbose)
     try:
-        client = client or make_client()
+        client = client or make_client(args)
         return COMMANDS[args.command]["run"](client, args, out)
     except (config.ConfigError, groups.PlanError, JiraError) as exc:
         print("error: {}".format(exc), file=sys.stderr)
