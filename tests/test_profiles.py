@@ -32,6 +32,10 @@ class ProfileTests(unittest.TestCase):
         got = config.from_profile(self.path, "sandbox", {"JIRA_API_TOKEN": "tok"})
         self.assertEqual(got, ("https://example-sandbox.atlassian.net", "ops@example.com", "tok"))
 
+    def test_exported_variables_override_the_file(self):
+        env = {"JIRA_PROD_TOKEN": "tok", "JIRA_URL": "https://other.atlassian.net", "JIRA_EMAIL": "me@example.com"}
+        self.assertEqual(config.from_profile(self.path, "prod", env), ("https://other.atlassian.net", "me@example.com", "tok"))
+
     def test_missing_token_names_the_variable(self):
         with self.assertRaises(config.ConfigError) as ctx:
             config.from_profile(self.path, "prod", {})

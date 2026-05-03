@@ -77,7 +77,10 @@ def from_profile(path: str, name: str, environ: dict[str, str] | None = None) ->
     token_env = profile.get("token_env", TOKEN_VAR)
     if not env.get(token_env):
         raise ConfigError("profile {!r} expects the API token in ${}".format(name, token_env))
-    return from_env({URL_VAR: profile.get("url", ""), EMAIL_VAR: profile.get("email", ""), TOKEN_VAR: env[token_env]})
+    # Values exported in the environment win over the file, so a one-off
+    # JIRA_URL=... on the command line still does what it says.
+    return from_env({URL_VAR: env.get(URL_VAR) or profile.get("url", ""),
+                     EMAIL_VAR: env.get(EMAIL_VAR) or profile.get("email", ""), TOKEN_VAR: env[token_env]})
 
 
 def from_env(environ: dict[str, str] | None = None) -> tuple[str, str, str]:
