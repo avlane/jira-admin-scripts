@@ -24,6 +24,19 @@ timeout in seconds. `JIRA_REQUESTS_PER_SECOND` spaces requests out (for example 
 is the longest `Retry-After` the client will sit through before giving up. The account
 needs Administer Jira for most commands.
 
+### Profiles
+
+On Python 3.11 or newer you can keep several sites in `~/.config/jiraadmin.toml`:
+
+    [profiles.prod]
+    url = "https://example.atlassian.net"
+    email = "ops@example.com"
+    token_env = "JIRA_PROD_TOKEN"   # the name of the variable that holds the token
+
+and run `jiraadmin --profile prod ...` (or point `--config` at another file). The token
+itself is never stored in the file. `JIRA_URL` and `JIRA_EMAIL`, when exported, take
+precedence over the profile.
+
 ## Commands
 
 | command | what it does |
