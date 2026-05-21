@@ -40,6 +40,23 @@ class ClientTests(unittest.TestCase):
             make(session).get("myself")
         self.assertNotIn("(check", str(ctx.exception))
 
+    def test_user_agent_carries_the_package_version(self):
+        import sys
+        import types
+        from unittest import mock
+        from jiraadmin import __version__, client as client_module
+
+        class Session:
+            def __init__(self):
+                self.headers = {}
+                self.auth = None
+
+        fake_requests = types.SimpleNamespace(Session=lambda: Session())
+        with mock.patch.dict(sys.modules, {"requests": fake_requests}):
+            session = client_module.default_session("ops@example.com", "tok")
+        self.assertEqual(session.auth, ("ops@example.com", "tok"))
+        self.assertEqual(session.headers["User-Agent"], "jira-admin-scripts/" + __version__)
+
     def test_empty_body_returns_none(self):
         session = FakeSession().add("GET", r"/ping$", FakeResponse(204))
         self.assertIsNone(make(session).request("GET", "ping", expected=(204,)))

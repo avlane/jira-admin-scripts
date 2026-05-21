@@ -6,6 +6,8 @@ from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from typing import Any, Iterator
 
+from . import __version__
+
 
 class JiraError(Exception):
     def __init__(self, message, status=None, url=None):
@@ -32,7 +34,7 @@ def default_session(email, token):
 
     session = requests.Session()
     session.auth = (email, token)
-    session.headers.update({"Accept": "application/json", "User-Agent": "jira-admin-scripts/0.1"})
+    session.headers.update({"Accept": "application/json", "User-Agent": "jira-admin-scripts/" + __version__})
     return session
 
 
