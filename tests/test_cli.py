@@ -157,6 +157,18 @@ class CliTests(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertEqual(len(text.splitlines()), 4)
 
+    def test_two_runs_in_the_same_second_keep_both_files(self):
+        import os
+        import tempfile
+        from datetime import datetime, timezone
+        from unittest import mock
+        stamp = datetime(2026, 5, 31, 9, 0, 0, tzinfo=timezone.utc)
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.object(cli, "utcnow", return_value=stamp), \
+                contextlib.redirect_stderr(io.StringIO()):
+            run(["users", "--output-dir", tmp], self.session)
+            run(["users", "--output-dir", tmp], self.session)
+            self.assertEqual(sorted(os.listdir(tmp)), ["users-20260531T090000Z-2.json", "users-20260531T090000Z.json"])
+
     def test_group_members(self):
         from tests.helpers import load
         self.session.add("GET", r"/group/member$", load("group_member.json"))

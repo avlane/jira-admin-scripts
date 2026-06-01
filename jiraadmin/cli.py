@@ -66,8 +66,17 @@ def save_copy(rows, columns, args):
     """Write the rows as JSON to <output-dir>/<command>-<UTC timestamp>.json and return the path."""
     os.makedirs(args.output_dir, exist_ok=True)
     stamp = utcnow().strftime("%Y%m%dT%H%M%SZ")
-    path = os.path.join(args.output_dir, "{}-{}.json".format(args.command, stamp))
-    with open(path, "w", encoding="utf-8") as handle:
+    base = os.path.join(args.output_dir, "{}-{}".format(args.command, stamp))
+    path, number = base + ".json", 1
+    while True:
+        try:
+            handle = open(path, "x", encoding="utf-8")
+        except FileExistsError:
+            number += 1
+            path = "{}-{}.json".format(base, number)
+            continue
+        break
+    with handle:
         handle.write(report.render(rows, columns, "json"))
     print("saved {}".format(path), file=sys.stderr)
     return path
